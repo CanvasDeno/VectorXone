@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorXone - SVG Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better UX */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style for the selected SVG element */
+        .selected-svg-element {
+            outline: 2px solid #3b82f6; /* blue-500 */
+            outline-offset: 2px;
+            cursor: pointer;
+        }
+        /* Ensure SVG elements are clickable */
+        .live-preview-canvas svg * {
+            pointer-events: all;
+        }
+        
+        /* --- Custom Slider Styles --- */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        /* Webkit (Chrome, Safari) Track */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #3f3f46; /* zinc-700 */
+            border-radius: 5px;
+        }
+
+        /* Webkit (Chrome, Safari) Thumb */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #60a5fa; /* blue-400 */
+            cursor: pointer;
+            margin-top: -5px; /* Center thumb on the track */
+            border: 2px solid #18181b; /* zinc-900 */
+            transition: background 0.2s ease-in-out;
+        }
+        
+        input[type=range]:focus::-webkit-slider-thumb {
+             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
+        }
+
+        input[type=range]:hover::-webkit-slider-thumb {
+            background: #93c5fd; /* blue-300 */
+        }
+
+        /* Mozilla (Firefox) Track */
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #3f3f46; /* zinc-700 */
+            border-radius: 5px;
+        }
+
+        /* Mozilla (Firefox) Thumb */
+        input[type=range]::-moz-range-thumb {
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #60a5fa; /* blue-400 */
+            cursor: pointer;
+            border: 2px solid #18181b; /* zinc-900 */
+            transition: background 0.2s ease-in-out;
+        }
+
+        input[type=range]:focus::-moz-range-thumb {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
+        }
+
+        input[type=range]:hover::-moz-range-thumb {
+            background: #93c5fd; /* blue-300 */
+        }
+
+
+        /* Custom scrollbar for textareas */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #27272a; /* zinc-800 */
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background-color: #52525b; /* zinc-600 */
+            border-radius: 10px;
+            border: 2px solid #27272a; /* zinc-800 */
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-zinc-900 text-zinc-200 antialiased">
+
+    <!-- Main Container -->
+    <div class="container mx-auto p-4 lg:p-8">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">VectorXone</h1>
+            <p class="mt-3 text-lg text-zinc-400">A simple, fast tool for editing SVG properties.</p>
+        </header>
+
+        <!-- Main Grid Layout -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)] min-h-[600px]">
+
+            <!-- Column 1: SVG Input -->
+            <div class="flex flex-col bg-zinc-800 rounded-lg shadow-lg overflow-hidden">
+                <h2 class="text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">1. Paste SVG Code</h2>
+                <textarea id="svg-input" class="w-full h-full p-4 bg-transparent text-zinc-300 font-mono text-sm resize-none focus:outline-none" placeholder="Paste your SVG code here..."></textarea>
+            </div>
+
+            <!-- Column 2: Live Preview & Controls -->
+            <div class="flex flex-col gap-6">
+                <!-- Live Preview -->
+                <div class="flex flex-col bg-zinc-800 rounded-lg shadow-lg flex-grow">
+                    <h2 class="text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">2. Live Preview</h2>
+                    <div id="live-preview" class="live-preview-canvas flex-grow flex items-center justify-center p-4 min-h-[200px]">
+                        <p class="text-zinc-500">Preview will appear here</p>
+                    </div>
+                </div>
+                <!-- Property Controls -->
+                <div id="controls-panel" class="flex flex-col bg-zinc-800 rounded-lg shadow-lg transition-opacity duration-300">
+                    <h2 class="text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">3. Edit Properties</h2>
+                    <div id="controls-content" class="p-4 space-y-4">
+                        <!-- Placeholder text when no element is selected -->
+                        <p id="controls-placeholder" class="text-zinc-500 text-center">Click an element in the preview to edit it.</p>
+                        <!-- Dynamic controls will be injected here -->
+                        <div id="dynamic-controls" class="hidden space-y-4">
+                            <!-- Fill Control -->
+                            <div class="flex items-center justify-between">
+                                <label for="fill-color" class="font-medium text-zinc-300">Fill</label>
+                                <input type="color" id="fill-color" class="w-10 h-10 p-1 bg-zinc-700 rounded-md cursor-pointer">
+                            </div>
+                            <!-- Stroke Control -->
+                            <div class="flex items-center justify-between">
+                                <label for="stroke-color" class="font-medium text-zinc-300">Stroke</label>
+                                <input type="color" id="stroke-color" class="w-10 h-10 p-1 bg-zinc-700 rounded-md cursor-pointer">
+                            </div>
+                            <!-- Stroke Width Control -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label for="stroke-width" class="font-medium text-zinc-300">Stroke Width</label>
+                                    <span id="stroke-width-value" class="text-sm text-zinc-400">1px</span>
+                                </div>
+                                <input type="range" id="stroke-width" min="0" max="50" step="0.5" value="1" class="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <!-- Opacity Control -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label for="opacity" class="font-medium text-zinc-300">Opacity</label>
+                                    <span id="opacity-value" class="text-sm text-zinc-400">100%</span>
+                                </div>
+                                <input type="range" id="opacity" min="0" max="1" step="0.01" value="1" class="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 3: Code Output -->
+            <div class="flex flex-col bg-zinc-800 rounded-lg shadow-lg overflow-hidden">
+                 <div class="flex justify-between items-center p-4 bg-zinc-700/50 border-b border-zinc-700">
+                    <h2 class="text-lg font-semibold">4. Get Updated Code</h2>
+                    <button id="copy-button" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400">Copy</button>
+                </div>
+                <textarea id="svg-output" readonly class="w-full h-full p-4 bg-transparent text-zinc-300 font-mono text-sm resize-none focus:outline-none"></textarea>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Element References
+            const svgInput = document.getElementById('svg-input');
+            const livePreview = document.getElementById('live-preview');
+            const svgOutput = document.getElementById('svg-output');
+            const copyButton = document.getElementById('copy-button');
+            
+            const controlsPlaceholder = document.getElementById('controls-placeholder');
+            const dynamicControls = document.getElementById('dynamic-controls');
+
+            const fillColorInput = document.getElementById('fill-color');
+            const strokeColorInput = document.getElementById('stroke-color');
+            const strokeWidthInput = document.getElementById('stroke-width');
+            const strokeWidthValue = document.getElementById('stroke-width-value');
+            const opacityInput = document.getElementById('opacity');
+            const opacityValue = document.getElementById('opacity-value');
+
+            // State variable to hold the currently selected SVG element
+            let selectedElement = null;
+
+            // Default SVG for demonstration
+            const defaultSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="#e4e4e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="#18181b" />
+    <circle cx="12" cy="12" r="5" fill="#3b82f6" stroke="#f4f4f5" stroke-width="1.5" />
+    <line x1="12" y1="2" x2="12" y2="6" stroke-width="1" />
+    <line x1="12" y1="18" x2="12" y2="22" stroke-width="1" />
+</svg>`;
+            svgInput.value = defaultSvg;
+            
+            // --- CORE FUNCTIONS ---
+
+            /**
+             * Renders the SVG from the input textarea into the preview pane.
+             */
+            function renderSvg() {
+                const svgString = svgInput.value;
+                livePreview.innerHTML = ''; // Clear previous preview
+                selectedElement = null; // Reset selection
+                hideControls();
+
+                if (!svgString.trim()) {
+                    livePreview.innerHTML = '<p class="text-zinc-500">Preview will appear here</p>';
+                    updateOutput('');
+                    return;
+                }
+
+                try {
+                    // Use DOMParser to safely parse the SVG string
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(svgString, 'image/svg+xml');
+                    const svgNode = doc.querySelector('svg');
+
+                    if (svgNode && !doc.querySelector('parsererror')) {
+                        // Style the SVG to fit the container
+                        svgNode.style.width = '100%';
+                        svgNode.style.height = '100%';
+                        svgNode.style.maxWidth = '256px';
+                        svgNode.style.maxHeight = '256px';
+
+                        livePreview.appendChild(svgNode);
+                        addClickListenersToSvgElements(svgNode);
+                        updateOutput();
+                    } else {
+                        livePreview.innerHTML = '<p class="text-red-400">Invalid SVG code</p>';
+                        updateOutput('');
+                    }
+                } catch (error) {
+                    console.error("SVG Parsing Error:", error);
+                    livePreview.innerHTML = '<p class="text-red-400">Error parsing SVG</p>';
+                    updateOutput('');
+                }
+            }
+
+            /**
+             * Attaches click event listeners to all interactive elements within the SVG.
+             * @param {SVGSVGElement} svgNode The root SVG element.
+             */
+            function addClickListenersToSvgElements(svgNode) {
+                const elements = svgNode.querySelectorAll('path, rect, circle, ellipse, line, polyline, polygon, text');
+                elements.forEach(el => {
+                    el.style.cursor = 'pointer';
+                    el.addEventListener('click', (event) => {
+                        event.stopPropagation(); // Prevent event bubbling
+                        selectElement(el);
+                    });
+                });
+            }
+
+            /**
+             * Handles the selection of an SVG element.
+             * @param {SVGElement} el The element that was clicked.
+             */
+            function selectElement(el) {
+                // Remove highlight from previously selected element
+                if (selectedElement) {
+                    selectedElement.classList.remove('selected-svg-element');
+                }
+                
+                // Set and highlight the new element
+                selectedElement = el;
+                selectedElement.classList.add('selected-svg-element');
+
+                // Populate controls with the element's current properties
+                populateControls(selectedElement);
+                showControls();
+            }
+
+            /**
+             * Populates the control panel with the properties of the selected element.
+             * @param {SVGElement} el The selected SVG element.
+             */
+            function populateControls(el) {
+                // Get computed styles for accurate color representation
+                const computedStyle = window.getComputedStyle(el);
+
+                // Fill Color
+                const fill = el.getAttribute('fill') || computedStyle.getPropertyValue('fill') || '#000000';
+                fillColorInput.value = rgbToHex(fill);
+
+                // Stroke Color
+                const stroke = el.getAttribute('stroke') || computedStyle.getPropertyValue('stroke') || '#000000';
+                strokeColorInput.value = rgbToHex(stroke);
+
+                // Stroke Width
+                const strokeWidth = parseFloat(el.getAttribute('stroke-width') || computedStyle.getPropertyValue('stroke-width') || '1');
+                strokeWidthInput.value = strokeWidth;
+                strokeWidthValue.textContent = `${strokeWidth}px`;
+                
+                // Opacity
+                const opacity = parseFloat(el.getAttribute('opacity') || computedStyle.getPropertyValue('opacity') || '1');
+                opacityInput.value = opacity;
+                opacityValue.textContent = `${Math.round(opacity * 100)}%`;
+            }
+
+            /**
+             * Updates the selected element's attribute based on control changes.
+             * @param {string} attribute The SVG attribute to change (e.g., 'fill', 'stroke-width').
+             * @param {string|number} value The new value for the attribute.
+             */
+            function updateSelectedElement(attribute, value) {
+                if (selectedElement) {
+                    selectedElement.setAttribute(attribute, value);
+                    updateOutput();
+                }
+            }
+
+            /**
+             * Updates the output textarea with the current SVG's outerHTML.
+             */
+            function updateOutput() {
+                const svgNode = livePreview.querySelector('svg');
+                if (svgNode) {
+                    // Clone the node to remove our custom class and styles before outputting
+                    const clone = svgNode.cloneNode(true);
+                    clone.style.width = null; // Remove inline styles we added
+                    clone.style.height = null;
+                    clone.style.maxWidth = null;
+                    clone.style.maxHeight = null;
+                    clone.querySelectorAll('.selected-svg-element').forEach(el => el.classList.remove('selected-svg-element'));
+                    
+                    // A simple formatter for readability
+                    const formattedCode = formatSvg(clone.outerHTML);
+                    svgOutput.value = formattedCode;
+                } else {
+                    svgOutput.value = '';
+                }
+            }
+
+            /**
+             * Shows the dynamic controls and hides the placeholder.
+             */
+            function showControls() {
+                controlsPlaceholder.classList.add('hidden');
+                dynamicControls.classList.remove('hidden');
+            }
+
+            /**
+             * Hides the dynamic controls and shows the placeholder.
+             */
+            function hideControls() {
+                controlsPlaceholder.classList.remove('hidden');
+                dynamicControls.classList.add('hidden');
+            }
+
+            // --- UTILITY FUNCTIONS ---
+
+            /**
+             * Converts an RGB color string to a HEX string.
+             * @param {string} rgb The RGB color string (e.g., 'rgb(255, 0, 0)').
+             * @returns {string} The HEX color string (e.g., '#ff0000').
+             */
+            function rgbToHex(rgb) {
+                if (rgb.startsWith('#')) return rgb;
+                if (rgb === 'none' || !rgb) return '#000000';
+
+                let sep = rgb.indexOf(",") > -1 ? "," : " ";
+                rgb = rgb.substr(4).split(")")[0].split(sep);
+                
+                let r = (+rgb[0]).toString(16),
+                    g = (+rgb[1]).toString(16),
+                    b = (+rgb[2]).toString(16);
+
+                if (r.length == 1) r = "0" + r;
+                if (g.length == 1) g = "0" + g;
+                if (b.length == 1) b = "0" + b;
+
+                return "#" + r + g + b;
+            }
+
+            /**
+             * Simple SVG formatter to add newlines for better readability.
+             * @param {string} svgString The raw SVG string.
+             * @returns {string} The formatted SVG string.
+             */
+            function formatSvg(svgString) {
+                return svgString
+                    .replace(/></g, '>\n  <')
+                    .replace(/<(svg|g|path|rect|circle|line|polygon|text)/g, '\n<$1')
+                    .replace(/<\/svg>/g, '\n</svg>')
+                    .trim();
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // Update preview on input change
+            svgInput.addEventListener('input', renderSvg);
+
+            // Control panel event listeners
+            fillColorInput.addEventListener('input', (e) => updateSelectedElement('fill', e.target.value));
+            strokeColorInput.addEventListener('input', (e) => updateSelectedElement('stroke', e.target.value));
+            
+            strokeWidthInput.addEventListener('input', (e) => {
+                const value = e.target.value;
+                strokeWidthValue.textContent = `${value}px`;
+                updateSelectedElement('stroke-width', value);
+            });
+
+            opacityInput.addEventListener('input', (e) => {
+                const value = e.target.value;
+                opacityValue.textContent = `${Math.round(value * 100)}%`;
+                updateSelectedElement('opacity', value);
+            });
+
+            // Copy to clipboard functionality
+            copyButton.addEventListener('click', () => {
+                svgOutput.select();
+                // Using document.execCommand as a fallback for iframe compatibility
+                try {
+                    document.execCommand('copy');
+                    copyButton.textContent = 'Copied!';
+                    setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    copyButton.textContent = 'Error!';
+                    setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
+                }
+            });
+
+            // Initial render on page load
+            renderSvg();
+        });
+    </script>
+</body>
+</html>
