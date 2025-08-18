@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- This is the main page. This is a landing page website -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorXone By Aspxone- Fast & Simple SVG Editing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-zinc-900 text-zinc-300 antialiased">
+
+    <!-- Header -->
+    <header class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="#">
+            <img src="https://raw.githubusercontent.com/CanvasDeno/VectorXone/ad80bce51e9fb6bff4270645d3959b8b5228d938/VectorXone.svg" alt="VectorXone Logo" class="h-8 w-auto" onerror="this.onerror=null; this.src='https://placehold.co/150x32/18181b/ffffff?text=VectorXone';">
+        </a>
+        <!-- In a real application, this button would link to the editor tool -->
+        <a href="editor.html" class="bg-blue-600 text-white font-medium py-2 px-5 rounded-lg hover:bg-blue-500 transition-colors">
+            Launch Editor
+        </a>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="text-center py-20 lg:py-32 px-6">
+            <div class="container mx-auto">
+                <h2 class="text-4xl md:text-6xl font-black text-white leading-tight mb-4">
+                    Effortless <span class="gradient-text">SVG</span> Editing is Here.
+                </h2>
+                <p class="text-lg md:text-xl text-zinc-400 max-w-3xl mx-auto mb-8">
+                    VectorXone is a lightning-fast, browser-based tool for developers and designers to tweak SVGs without the bloat of heavy design software. Paste, click, edit, and copy. It's that simple.
+                </p>
+                <!-- In a real application, this button would link to the editor tool -->
+                <a href="#" class="bg-blue-600 text-white font-bold py-4 px-8 rounded-lg text-lg hover:bg-blue-500 transition-transform transform hover:scale-105 inline-block">
+                    Try VectorXone Now
+                </a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20 bg-zinc-800/50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-white">A Toolkit Built for Speed</h3>
+                    <p class="text-zinc-400 mt-2">Everything you need for quick vector modifications.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="bg-zinc-800 p-6 rounded-lg">
+                        <div class="bg-blue-600/20 text-blue-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Paste Any SVG</h4>
+                        <p class="text-zinc-400">Directly paste your raw SVG code into the editor to get started instantly.</p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="bg-zinc-800 p-6 rounded-lg">
+                        <div class="bg-purple-600/20 text-purple-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Instant Live Preview</h4>
+                        <p class="text-zinc-400">See your changes render in real-time as you edit. No more guesswork.</p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="bg-zinc-800 p-6 rounded-lg">
+                        <div class="bg-green-600/20 text-green-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Visual Property Controls</h4>
+                        <p class="text-zinc-400">Click any element to visually edit fill, stroke, opacity, and stroke-width.</p>
+                    </div>
+                    <!-- Feature 4 -->
+                    <div class="bg-zinc-800 p-6 rounded-lg">
+                        <div class="bg-yellow-600/20 text-yellow-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Real-time Code Output</h4>
+                        <p class="text-zinc-400">Your modified, clean SVG code is generated instantly, ready to be copied.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- "Who is it for?" Section -->
+        <section class="py-20">
+            <div class="container mx-auto px-6 text-center">
+                 <h3 class="text-3xl font-bold text-white">Made for Modern Workflows</h3>
+                 <p class="text-zinc-400 mt-2 max-w-2xl mx-auto">VectorXone is perfect for frontend developers, UI/UX designers, and anyone who needs to make quick, precise changes to vector assets.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-zinc-800">
+        <div class="container mx-auto px-6 py-4 text-center text-zinc-500">
+            <p>&copy; 2024 VectorXone. Made by Aspxone.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
