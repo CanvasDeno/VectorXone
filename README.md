@@ -27,6 +27,13 @@ VectorXone does not require any SVG, HTML or XML knowledge, you just have to kno
 VectorXone does not collect any data to use or sell. 
 (NOTE: VECTORXONE USES GITHUB PAGES, SO THE WEBSITE OR APP MAY HAVE SOME GITHUB PAGES TRACKING FEATURES)
 
+## VectorXone Basic Tutorial
+Now you have known what is VectorXone, you can start learning how to use VectorXone.
+1. To get started, click on the "Launch Editor" or "Try VectorXone Now" on the website.
+2. After you're in the editor, paste your desired SVG code in the "1. Paste SVG code" part.
+3. Select the part of the SVG element you want to edit
+4. You can start tweaking the SVG with the avaliable tweaking options.
+
 ## How to fork or customize?
 Users are **free to fork this project and customize it.**
 User can use this command on their native/remote git client:
