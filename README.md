@@ -42,4 +42,14 @@ User can use this command on their native/remote git client:
 Or Users can fork this in Github by using the **Fork option**
 (PLEASE READ LICENSE BEFORE DOING ANY FORKS)
 
+## Install and Self-host using your OS shell
+Copy these scripts and Paste this in your deflaut OS shell.
+
+### For Powershell
+If you use **Windows or have Powershell Core** installed in your OS, **paste this on your Powershell client:**
+```powershell
+irm "https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/install.ps1" | iex
+```
+### For Bash
+If you use **Bash or use a Linux Distro, paste this on your bash/linux terminal client:**
 ===The end===
