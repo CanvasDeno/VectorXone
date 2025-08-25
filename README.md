@@ -52,13 +52,12 @@ irm "https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/ins
 ```
 ### For Bash
 If you use **Bash or use a Linux Distro, paste this on your bash/linux terminal client:**
+```bash
+wget install https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/editor.html
+```
+### For UNIX or BSD-based systems...
+Coming soon, till then you **may use git and use the editor.html from it**
 
-#### Using Curl
-```bash
-curl -s https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/install.sh | bash
-```
-#### Using wget
-```bash
-wget -qO - https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/install.sh | bash
-```
+**NOTE: SOME ANTI-MALWARE/ANTI-VIRUS SOFTWARE MAY BLOCK THE SHELL SYSTEM FROM RUNNING THE SCRIPTS, PLEASE DISABLE THE SOFTWARE BEFORE EXECUTING THESE SCRIPTS IN YOUR NATIVE TERMINAL CLIENT. IF YOU CAN'T DISABLE YOUR ANTI-MALWARE/ANTI-VIRUS SOFTWARE, PLEASE JUST USE THE GIT COMMAND AND EXTRACT AND USE THE EDITOR.HTML FILE**
+
 ===The end===
