@@ -52,4 +52,13 @@ irm "https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/ins
 ```
 ### For Bash
 If you use **Bash or use a Linux Distro, paste this on your bash/linux terminal client:**
+
+#### Using Curl
+```bash
+curl -s https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/install.sh | bash
+```
+#### Using wget
+```bash
+wget -qO - https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/install.sh | bash
+```
 ===The end===
