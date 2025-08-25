@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- This is the main page. This is a landing page website -->
+    <!-- This is the main page. This is a landing page website -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VectorXone By Aspxone- Fast & Simple SVG Editing</title>
@@ -118,7 +118,7 @@
                  <p class="text-zinc-400 mt-2 max-w-2xl mx-auto">VectorXone is perfect for frontend developers, UI/UX designers, and anyone who needs to make quick, precise changes to vector assets.</p>
             </div>
         </section>
-           <!-- "Support" Section -->
+            <!-- "Support" Section -->
         <section class="py-2">
             <div class="container mx-auto px-6 text-center">
                  <h3 class="text-3xl font-bold text-white">
@@ -129,9 +129,60 @@
                   <a href="https://linktr.ee/aspxone" class="bg-blue-600 text-white font-medium py-2 px-5 rounded-lg hover:bg-blue-500 transition-colors">
             Aspxone's site
         </a>
+         <a href="https://github.com/CanvasDeno" class="bg-blue-600 text-white font-medium py-2 px-5 rounded-lg hover:bg-blue-500 transition-colors" style="margin: 5px;">
+            Github Repo
+        </a>
         <div style="margin: 20px"></div>
             </div>
         </section>
+
+        <!-- New section for self-hosting commands -->
+        <section class="py-20 bg-zinc-800/50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-white">Self-Hosting Commands</h3>
+                    <p class="text-zinc-400 mt-2 max-w-2xl mx-auto">
+                        You can download the editor as an .html file and open it in your web browser.
+                        This can be used to have more privacy or just simply run it offline without an internet connection.
+                        This uses simple HTTPS, no complex FTP software or some other software needed, just paste this into your native terminal client.
+                    </p>
+                    <br>
+                    <p class="font-bold" style="padding: 10px; background-color: #faeb78; border-radius: 10px; color: black; border: orange solid 1px">
+                       Some anti-malware/anti-virus software may block the shell system from running the scripts, Please disable the software before executing these scripts in your native terminal client. If you can't disable your anti-malware/anti-virus software, Please just use the git command and extract and use the editor.html file
+                    </p>
+                </div>
+                <div class="flex flex-col md:flex-row justify-center items-start gap-8">
+                    <!-- Bash Command -->
+                    <div class="bg-zinc-800 p-6 rounded-lg w-full md:w-1/2 relative">
+                        <h4 class="text-xl font-bold text-white mb-2">Bash/ZSH</h4>
+                        <p>For <b>Linux or MacOS.</b> You can also use this on windows and other OSes also by using your Bash/ZSH client.</p>
+                        <br>
+                        <div class="relative">
+                            <pre class="bg-black/50 p-4 rounded-lg overflow-x-auto text-sm" id="bash-code"><code>wget install https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/editor.html</code></pre>
+                            <button onclick="copyCode('bash-code')" class="absolute top-2 right-2 bg-zinc-700 hover:bg-zinc-600 text-white py-1 px-3 rounded-md text-xs transition-colors">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                    <!-- PowerShell Command -->
+                    <div class="bg-zinc-800 p-6 rounded-lg w-full md:w-1/2 relative">
+                        <h4 class="text-xl font-bold text-white mb-2">PowerShell</h4>
+                        <p>For <b>Windows.</b> You can also use this on other OSes if you have powershell core installed on them.</p>
+                        <br>
+                        <div class="relative">
+                            <pre class="bg-black/50 p-4 rounded-lg overflow-x-auto text-sm" id="powershell-code"><code>irm "https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/install.ps1" | iex</code></pre>
+                            <button onclick="copyCode('powershell-code')" class="absolute top-2 right-2 bg-zinc-700 hover:bg-zinc-600 text-white py-1 px-3 rounded-md text-xs transition-colors">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <br>
+            <center><p>Coming soon for BSD and UNIX...</p></center>
+        </section>
+
     </main>
 
     <!-- Footer -->
@@ -140,5 +191,28 @@
             <p>&copy; 2025 VectorXone. Made by Aspxone. Uses BSD-2-Clause license</p>
         </div>
     </footer>
+
+    <script>
+        function copyCode(elementId) {
+            const codeBlock = document.getElementById(elementId);
+            const range = document.createRange();
+            range.selectNode(codeBlock);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                // Use the deprecated but reliable document.execCommand
+                document.execCommand('copy');
+                const button = codeBlock.parentElement.querySelector('button');
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+            window.getSelection().removeAllRanges();
+        }
+    </script>
 </body>
 </html>
