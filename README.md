@@ -1,6 +1,8 @@
 # VectorXone
 VectorXone is a lightning-fast, browser-based tool for developers and designers to tweak SVGs without the bloat of heavy design software. Paste, click, edit, and copy. It's that simple.
 
+**VectorXone 2.0 is out with tabs, gradients, cy, cx and much more!**
+
 ## Features:
 1. **Paste any SVG:** Directly paste your raw SVG code into the editor to get started instantly.
 
@@ -25,7 +27,7 @@ VectorXone does not require any SVG, HTML or XML knowledge, you just have to kno
 
 1. **Is VectorXone private?**
 VectorXone does not collect any data to use or sell. 
-(NOTE: VECTORXONE USES GITHUB PAGES, SO THE WEBSITE OR APP MAY HAVE SOME GITHUB PAGES TRACKING FEATURES)
+(NOTE: VECTORXONE USES GITHUB PAGES, SO THE WEBSITE OR APP MAY HAVE SOME GITHUB PAGE TRACKING FEATURES)
 
 ## VectorXone Basic Tutorial
 Now you have known what is VectorXone, you can start learning how to use VectorXone.
@@ -42,22 +44,13 @@ User can use this command on their native/remote git client:
 Or Users can fork this in Github by using the **Fork option**
 (PLEASE READ LICENSE BEFORE DOING ANY FORKS)
 
-## Install and Self-host using your OS shell
-Copy these scripts and Paste this in your deflaut OS shell.
-
-### For Powershell
-If you use **Windows or have Powershell Core** installed in your OS, **paste this on your Powershell client:**
-```powershell
-irm "https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/install.ps1" | iex
-```
-### For Bash
-If you use **Bash or use a Linux Distro, paste this on your bash/linux terminal client:**
+## Use VectorXone in your development projects, offline and light
+You can use [cURL](https://curl.se) for this. Enter this script in your OS terminal (make sure that you're in the right directory and your project is stored there)
+Now, copy-paste this command:
 ```bash
-wget install https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/editor.html
+curl -i https://canvasdeno.github.io/VectorXone/editor.html
 ```
-### For UNIX or BSD-based systems...
-Coming soon, till then you **may use git and use the editor.html from it**
 
-**NOTE: SOME ANTI-MALWARE/ANTI-VIRUS SOFTWARE MAY BLOCK THE SHELL SYSTEM FROM RUNNING THE SCRIPTS, PLEASE DISABLE THE SOFTWARE BEFORE EXECUTING THESE SCRIPTS IN YOUR NATIVE TERMINAL CLIENT. IF YOU CAN'T DISABLE YOUR ANTI-MALWARE/ANTI-VIRUS SOFTWARE, PLEASE JUST USE THE GIT COMMAND AND EXTRACT AND USE THE EDITOR.HTML FILE**
+**NOTE: Install cURL if you do not have it, on OSes like FreeBSD or OpenBSD**
 
 ===The end===
