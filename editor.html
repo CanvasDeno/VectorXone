@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VectorXone - SVG Editor</title>
+    <title>VectorXone 2.0 - SVG Editor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom styles for better UX */
@@ -86,23 +86,92 @@
         input[type=range]:focus::-moz-range-thumb {
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
         }
-
-        input[type=range]:hover::-moz-range-thumb {
-            background: #93c5fd; /* blue-300 */
+        
+        /* --- Custom Button Group Styles --- */
+        .control-btn-group button {
+            background-color: #3f3f46; /* zinc-700 */
+        }
+        .control-btn-group button:hover {
+            background-color: #52525b; /* zinc-600 */
+        }
+        .control-btn-group button.active {
+            background-color: #3b82f6; /* blue-500 */
+            color: #ffffff;
+            font-weight: 500;
         }
 
-
-        /* Custom scrollbar for textareas */
-        textarea::-webkit-scrollbar {
+        /* Custom scrollbar for textareas and tab content */
+        .custom-scrollbar::-webkit-scrollbar {
             width: 8px;
         }
-        textarea::-webkit-scrollbar-track {
+        .custom-scrollbar::-webkit-scrollbar-track {
             background: #27272a; /* zinc-800 */
         }
-        textarea::-webkit-scrollbar-thumb {
+        .custom-scrollbar::-webkit-scrollbar-thumb {
             background-color: #52525b; /* zinc-600 */
             border-radius: 10px;
             border: 2px solid #27272a; /* zinc-800 */
+        }
+
+        /* --- Gradient Editor Styles --- */
+        .gradient-bar {
+            height: 30px;
+            border-radius: 6px;
+            position: relative;
+            cursor: crosshair;
+            border: 1px solid #52525b;
+        }
+        .gradient-stop {
+            position: absolute;
+            top: -5px;
+            width: 16px;
+            height: 40px;
+            background-color: transparent;
+            cursor: pointer;
+            transform: translateX(-8px);
+        }
+        .gradient-stop-pin {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #a1a1aa; /* zinc-400 */
+            position: absolute;
+            bottom: -8px;
+            background-clip: content-box;
+            background-color: inherit; /* will be set by JS */
+        }
+        .gradient-stop.active .gradient-stop-pin {
+            border-color: #ffffff;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+        .gradient-stop-remove {
+             display: none;
+        }
+         .gradient-stop.active .gradient-stop-remove {
+            display: flex;
+        }
+
+        /* --- Tab Styles --- */
+        .tab-btn {
+            background-color: transparent;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+        .tab-btn.active {
+            border-bottom-color: #3b82f6; /* blue-500 */
+            color: #ffffff;
+            background-color: #3f3f46; /* zinc-700 */
+        }
+        .tab-btn:hover:not(.active) {
+            background-color: #3f3f46; /* zinc-700 */
+        }
+        .text-4xl {
+        background: #23CFD8;
+background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+
+
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -112,81 +181,188 @@
 <body class="bg-zinc-900 text-zinc-200 antialiased">
 
     <!-- Main Container -->
-    <div class="container mx-auto p-4 lg:p-8">
+    <div class="container mx-auto p-4 lg:p-6">
 
         <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">VectorXone</h1>
-            <p class="mt-3 text-lg text-zinc-400">A simple, fast tool for editing SVG properties.</p>
+        <header class="text-center mb-6">
+            <h2 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">VectorXone 2.0</h2>
+            <p class="mt-2 text-lg text-zinc-400">A simple, fast tool for editing SVG properties.</p>
         </header>
 
         <!-- Main Grid Layout -->
-        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)] min-h-[600px]">
-
-            <!-- Column 1: SVG Input -->
+        <main class="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6 h-[calc(100vh-160px)] min-h-[700px]">
+             <!-- Left Column: Tabs Sidebar -->
             <div class="flex flex-col bg-zinc-800 rounded-lg shadow-lg overflow-hidden">
-                <h2 class="text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">1. Paste SVG Code</h2>
-                <textarea id="svg-input" class="w-full h-full p-4 bg-transparent text-zinc-300 font-mono text-sm resize-none focus:outline-none" placeholder="Paste your SVG code here..."></textarea>
-            </div>
-
-            <!-- Column 2: Live Preview & Controls -->
-            <div class="flex flex-col gap-6">
-                <!-- Live Preview -->
-                <div class="flex flex-col bg-zinc-800 rounded-lg shadow-lg flex-grow">
-                    <h2 class="text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">2. Live Preview</h2>
-                    <div id="live-preview" class="live-preview-canvas flex-grow flex items-center justify-center p-4 min-h-[200px]">
-                        <p class="text-zinc-500">Preview will appear here</p>
-                    </div>
+                <!-- Tab Buttons -->
+                <div id="tab-buttons" class="flex-shrink-0 grid grid-cols-3 border-b border-zinc-700">
+                    <button data-tab="input" class="tab-btn active w-full py-3 font-medium text-zinc-300">Input</button>
+                    <button data-tab="properties" class="tab-btn w-full py-3 font-medium text-zinc-300">Properties</button>
+                    <button data-tab="output" class="tab-btn w-full py-3 font-medium text-zinc-300">Output</button>
                 </div>
-                <!-- Property Controls -->
-                <div id="controls-panel" class="flex flex-col bg-zinc-800 rounded-lg shadow-lg transition-opacity duration-300">
-                    <h2 class="text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">3. Edit Properties</h2>
-                    <div id="controls-content" class="p-4 space-y-4">
-                        <!-- Placeholder text when no element is selected -->
-                        <p id="controls-placeholder" class="text-zinc-500 text-center">Click an element in the preview to edit it.</p>
-                        <!-- Dynamic controls will be injected here -->
-                        <div id="dynamic-controls" class="hidden space-y-4">
-                            <!-- Fill Control -->
-                            <div class="flex items-center justify-between">
-                                <label for="fill-color" class="font-medium text-zinc-300">Fill</label>
-                                <input type="color" id="fill-color" class="w-10 h-10 p-1 bg-zinc-700 rounded-md cursor-pointer">
-                            </div>
-                            <!-- Stroke Control -->
-                            <div class="flex items-center justify-between">
-                                <label for="stroke-color" class="font-medium text-zinc-300">Stroke</label>
-                                <input type="color" id="stroke-color" class="w-10 h-10 p-1 bg-zinc-700 rounded-md cursor-pointer">
-                            </div>
-                            <!-- Stroke Width Control -->
-                            <div>
-                                <div class="flex items-center justify-between mb-1">
-                                    <label for="stroke-width" class="font-medium text-zinc-300">Stroke Width</label>
-                                    <span id="stroke-width-value" class="text-sm text-zinc-400">1px</span>
+                <!-- Tab Content Panels -->
+                <div class="flex-grow relative">
+                     <!-- Input Tab Content -->
+                    <div id="tab-content-input" class="tab-content absolute inset-0 flex flex-col">
+                        <div class="flex-shrink-0 flex justify-between items-center p-4 bg-zinc-700/50 border-b border-zinc-700">
+                            <h2 class="text-lg font-semibold">1. SVG Code</h2>
+                            <button id="import-button" class="px-3 py-1 bg-zinc-600 text-white rounded-md text-sm font-medium hover:bg-zinc-500 transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-400">Import</button>
+                        </div>
+                        <textarea id="svg-input" class="w-full h-full p-4 bg-transparent text-zinc-300 font-mono text-sm resize-none focus:outline-none custom-scrollbar" placeholder="Paste your SVG code here..."></textarea>
+                    </div>
+
+                    <!-- Properties Tab Content -->
+                    <div id="tab-content-properties" class="tab-content hidden absolute inset-0 flex flex-col">
+                         <div id="controls-panel" class="w-full h-full flex flex-col">
+                             <h2 class="flex-shrink-0 text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">2. Edit Properties</h2>
+                             <div id="controls-content" class="p-4 space-y-4 flex-grow overflow-y-auto custom-scrollbar">
+                                <p id="controls-placeholder" class="text-zinc-500 text-center pt-8">Click an element in the preview to edit it.</p>
+                                <div id="dynamic-controls" class="hidden space-y-4">
+                                     <div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <label for="stroke-width" class="font-medium text-zinc-300">Stroke Width</label>
+                                            <span id="stroke-width-value" class="text-sm text-zinc-400">1px</span>
+                                        </div>
+                                        <input type="range" id="stroke-width" min="0" max="50" step="0.5" value="1" class="w-full">
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <label for="opacity" class="font-medium text-zinc-300">Opacity</label>
+                                            <span id="opacity-value" class="text-sm text-zinc-400">100%</span>
+                                        </div>
+                                        <input type="range" id="opacity" min="0" max="1" step="0.01" value="1" class="w-full">
+                                    </div>
+                                    <div>
+                                        <label class="font-medium text-zinc-300 mb-2 block">Stroke Cap</label>
+                                        <div id="stroke-linecap-group" class="grid grid-cols-3 gap-2 control-btn-group">
+                                            <button data-value="butt" class="linecap-btn p-2 rounded-md text-sm transition-colors">Butt</button>
+                                            <button data-value="round" class="linecap-btn p-2 rounded-md text-sm transition-colors">Round</button>
+                                            <button data-value="square" class="linecap-btn p-2 rounded-md text-sm transition-colors">Square</button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="font-medium text-zinc-300 mb-2 block">Stroke Join</label>
+                                        <div id="stroke-linejoin-group" class="grid grid-cols-3 gap-2 control-btn-group">
+                                            <button data-value="miter" class="linejoin-btn p-2 rounded-md text-sm transition-colors">Miter</button>
+                                            <button data-value="round" class="linejoin-btn p-2 rounded-md text-sm transition-colors">Round</button>
+                                            <button data-value="bevel" class="linejoin-btn p-2 rounded-md text-sm transition-colors">Bevel</button>
+                                        </div>
+                                    </div>
+                                     <div class="space-y-3 pt-4 border-t border-zinc-700">
+                                        <div class="flex justify-between items-center">
+                                            <label class="font-medium text-zinc-300">Fill</label>
+                                            <div class="control-btn-group grid grid-cols-2 gap-px rounded-md overflow-hidden text-sm">
+                                                <button data-prop="fill" data-mode="solid" class="fill-mode-btn p-1 px-3">Solid</button>
+                                                <button data-prop="fill" data-mode="gradient" class="fill-mode-btn p-1 px-3">Gradient</button>
+                                            </div>
+                                        </div>
+                                        <div id="fill-solid-controls">
+                                            <input type="color" id="fill-color" class="w-full h-10 p-1 bg-zinc-700 rounded-md cursor-pointer">
+                                        </div>
+                                        <div id="fill-gradient-controls" class="hidden space-y-3">
+                                            <div id="fill-gradient-bar" class="gradient-bar"></div>
+                                            <div id="fill-stop-controls" class="hidden space-y-2">
+                                                <div class="flex items-center justify-between"><label for="fill-stop-color" class="text-sm">Stop Color</label><input type="color" id="fill-stop-color" class="w-10 h-10 p-1 bg-zinc-700 rounded-md cursor-pointer"></div>
+                                                <div class="flex items-center justify-between"><label for="fill-stop-offset" class="text-sm">Position</label><input type="range" id="fill-stop-offset" min="0" max="100" step="1"></div>
+                                            </div>
+                                            <div><label for="fill-gradient-rotation" class="text-sm mb-1 block">Direction</label><input type="range" id="fill-gradient-rotation" min="0" max="360" step="1" value="90"></div>
+                                        </div>
+                                    </div>
+                                     <div class="space-y-3 pt-4 border-t border-zinc-700">
+                                        <div class="flex justify-between items-center">
+                                            <label class="font-medium text-zinc-300">Stroke</label>
+                                            <div class="control-btn-group grid grid-cols-2 gap-px rounded-md overflow-hidden text-sm">
+                                                <button data-prop="stroke" data-mode="solid" class="stroke-mode-btn p-1 px-3">Solid</button>
+                                                <button data-prop="stroke" data-mode="gradient" class="stroke-mode-btn p-1 px-3">Gradient</button>
+                                            </div>
+                                        </div>
+                                        <div id="stroke-solid-controls">
+                                            <input type="color" id="stroke-color" class="w-full h-10 p-1 bg-zinc-700 rounded-md cursor-pointer">
+                                        </div>
+                                        <div id="stroke-gradient-controls" class="hidden space-y-3">
+                                            <div id="stroke-gradient-bar" class="gradient-bar"></div>
+                                            <div id="stroke-stop-controls" class="hidden space-y-2">
+                                                <div class="flex items-center justify-between"><label for="stroke-stop-color" class="text-sm">Stop Color</label><input type="color" id="stroke-stop-color" class="w-10 h-10 p-1 bg-zinc-700 rounded-md cursor-pointer"></div>
+                                                <div class="flex items-center justify-between"><label for="stroke-stop-offset" class="text-sm">Position</label><input type="range" id="stroke-stop-offset" min="0" max="100" step="1"></div>
+                                            </div>
+                                            <div><label for="stroke-gradient-rotation" class="text-sm mb-1 block">Direction</label><input type="range" id="stroke-gradient-rotation" min="0" max="360" step="1" value="90"></div>
+                                        </div>
+                                    </div>
+                                    <!-- Advanced Properties Section -->
+                                    <div id="advanced-properties-wrapper" class="pt-4 border-t border-zinc-700">
+                                        <details>
+                                            <summary class="font-medium text-zinc-300 cursor-pointer">Advanced Properties</summary>
+                                            <div class="mt-4 space-y-3">
+                                                <!-- Position & Size Controls -->
+                                                <div id="adv-cx-control" class="hidden items-center justify-between">
+                                                    <label for="adv-cx" class="text-sm text-zinc-400">Center X (cx)</label>
+                                                    <input type="number" id="adv-cx" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
+                                                </div>
+                                                <div id="adv-cy-control" class="hidden items-center justify-between">
+                                                    <label for="adv-cy" class="text-sm text-zinc-400">Center Y (cy)</label>
+                                                    <input type="number" id="adv-cy" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
+                                                </div>
+                                                <div id="adv-r-control" class="hidden items-center justify-between">
+                                                    <label for="adv-r" class="text-sm text-zinc-400">Radius (r)</label>
+                                                    <input type="number" id="adv-r" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
+                                                </div>
+                                                <div id="adv-rx-control" class="hidden items-center justify-between">
+                                                    <label for="adv-rx" class="text-sm text-zinc-400">Radius X (rx)</label>
+                                                    <input type="number" id="adv-rx" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
+                                                </div>
+                                                <div id="adv-ry-control" class="hidden items-center justify-between">
+                                                    <label for="adv-ry" class="text-sm text-zinc-400">Radius Y (ry)</label>
+                                                    <input type="number" id="adv-ry" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
+                                                </div>
+                                                <div id="adv-x-control" class="hidden items-center justify-between">
+                                                    <label for="adv-x" class="text-sm text-zinc-400">Position X (x)</label>
+                                                    <input type="number" id="adv-x" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
+                                                </div>
+                                                <div id="adv-y-control" class="hidden items-center justify-between">
+                                                    <label for="adv-y" class="text-sm text-zinc-400">Position Y (y)</label>
+                                                    <input type="number" id="adv-y" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
+                                                </div>
+                                                <div id="adv-width-control" class="hidden items-center justify-between">
+                                                    <label for="adv-width" class="text-sm text-zinc-400">Width</label>
+                                                    <input type="number" id="adv-width" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
+                                                </div>
+                                                <div id="adv-height-control" class="hidden items-center justify-between">
+                                                    <label for="adv-height" class="text-sm text-zinc-400">Height</label>
+                                                    <input type="number" id="adv-height" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
+                                                </div>
+                                            </div>
+                                        </details>
+                                    </div>
                                 </div>
-                                <input type="range" id="stroke-width" min="0" max="50" step="0.5" value="1" class="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
-                            </div>
-                            <!-- Opacity Control -->
-                            <div>
-                                <div class="flex items-center justify-between mb-1">
-                                    <label for="opacity" class="font-medium text-zinc-300">Opacity</label>
-                                    <span id="opacity-value" class="text-sm text-zinc-400">100%</span>
-                                </div>
-                                <input type="range" id="opacity" min="0" max="1" step="0.01" value="1" class="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
+                             </div>
+                         </div>
+                    </div>
+
+                     <!-- Output Tab Content -->
+                    <div id="tab-content-output" class="tab-content hidden absolute inset-0 flex flex-col">
+                        <div class="flex-shrink-0 flex justify-between items-center p-4 bg-zinc-700/50 border-b border-zinc-700">
+                           <h2 class="text-lg font-semibold">3. Get Updated Code</h2>
+                            <div class="flex items-center gap-2">
+                                <button id="copy-button" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400">Copy</button>
+                                <button id="export-button" class="px-3 py-1 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-500 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400">Export</button>
                             </div>
                         </div>
+                        <textarea id="svg-output" readonly class="w-full h-full p-4 bg-transparent text-zinc-300 font-mono text-sm resize-none focus:outline-none custom-scrollbar"></textarea>
                     </div>
                 </div>
             </div>
 
-            <!-- Column 3: Code Output -->
-            <div class="flex flex-col bg-zinc-800 rounded-lg shadow-lg overflow-hidden">
-                 <div class="flex justify-between items-center p-4 bg-zinc-700/50 border-b border-zinc-700">
-                    <h2 class="text-lg font-semibold">4. Get Updated Code</h2>
-                    <button id="copy-button" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400">Copy</button>
+             <!-- Right Column: Live Preview -->
+            <div class="flex flex-col bg-zinc-800 rounded-lg shadow-lg">
+                <h2 class="text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">Live Preview</h2>
+                <div id="live-preview" class="live-preview-canvas flex-grow flex items-center justify-center p-4 min-h-[200px]">
+                     <p class="text-zinc-500">Preview will appear here</p>
                 </div>
-                <textarea id="svg-output" readonly class="w-full h-full p-4 bg-transparent text-zinc-300 font-mono text-sm resize-none focus:outline-none"></textarea>
             </div>
         </main>
     </div>
+    
+    <!-- Hidden file input for importing -->
+    <input type="file" id="import-file-input" class="hidden" accept=".svg, image/svg+xml">
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -195,261 +371,519 @@
             const livePreview = document.getElementById('live-preview');
             const svgOutput = document.getElementById('svg-output');
             const copyButton = document.getElementById('copy-button');
-            
             const controlsPlaceholder = document.getElementById('controls-placeholder');
             const dynamicControls = document.getElementById('dynamic-controls');
-
-            const fillColorInput = document.getElementById('fill-color');
-            const strokeColorInput = document.getElementById('stroke-color');
             const strokeWidthInput = document.getElementById('stroke-width');
             const strokeWidthValue = document.getElementById('stroke-width-value');
             const opacityInput = document.getElementById('opacity');
             const opacityValue = document.getElementById('opacity-value');
+            const strokeLinecapGroup = document.getElementById('stroke-linecap-group');
+            const strokeLinejoinGroup = document.getElementById('stroke-linejoin-group');
+            const importButton = document.getElementById('import-button');
+            const importFileInput = document.getElementById('import-file-input');
+            const exportButton = document.getElementById('export-button');
+            const fillColorInput = document.getElementById('fill-color');
+            const fillSolidControls = document.getElementById('fill-solid-controls');
+            const fillGradientControls = document.getElementById('fill-gradient-controls');
+            const fillGradientBar = document.getElementById('fill-gradient-bar');
+            const fillStopControls = document.getElementById('fill-stop-controls');
+            const fillStopColor = document.getElementById('fill-stop-color');
+            const fillStopOffset = document.getElementById('fill-stop-offset');
+            const fillGradientRotation = document.getElementById('fill-gradient-rotation');
+            const strokeColorInput = document.getElementById('stroke-color');
+            const strokeSolidControls = document.getElementById('stroke-solid-controls');
+            const strokeGradientControls = document.getElementById('stroke-gradient-controls');
+            const strokeGradientBar = document.getElementById('stroke-gradient-bar');
+            const strokeStopControls = document.getElementById('stroke-stop-controls');
+            const strokeStopColor = document.getElementById('stroke-stop-color');
+            const strokeStopOffset = document.getElementById('stroke-stop-offset');
+            const strokeGradientRotation = document.getElementById('stroke-gradient-rotation');
+            const advancedPropertiesWrapper = document.getElementById('advanced-properties-wrapper');
 
-            // State variable to hold the currently selected SVG element
+            const advancedControls = {
+                cx: { control: document.getElementById('adv-cx-control'), input: document.getElementById('adv-cx') },
+                cy: { control: document.getElementById('adv-cy-control'), input: document.getElementById('adv-cy') },
+                r:  { control: document.getElementById('adv-r-control'),  input: document.getElementById('adv-r') },
+                rx: { control: document.getElementById('adv-rx-control'), input: document.getElementById('adv-rx') },
+                ry: { control: document.getElementById('adv-ry-control'), input: document.getElementById('adv-ry') },
+                x:  { control: document.getElementById('adv-x-control'),  input: document.getElementById('adv-x') },
+                y:  { control: document.getElementById('adv-y-control'),  input: document.getElementById('adv-y') },
+                width: { control: document.getElementById('adv-width-control'), input: document.getElementById('adv-width') },
+                height:{ control: document.getElementById('adv-height-control'), input: document.getElementById('adv-height') }
+            };
+
+            // Tab UI elements
+            const tabButtonsContainer = document.getElementById('tab-buttons');
+            const tabButtons = tabButtonsContainer.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            // State variables
             let selectedElement = null;
+            let selectedGradientStop = { fill: null, stroke: null };
+            let gradientCounter = 0;
 
-            // Default SVG for demonstration
-            const defaultSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="#e4e4e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="#18181b" />
-    <circle cx="12" cy="12" r="5" fill="#3b82f6" stroke="#f4f4f5" stroke-width="1.5" />
-    <line x1="12" y1="2" x2="12" y2="6" stroke-width="1" />
-    <line x1="12" y1="18" x2="12" y2="22" stroke-width="1" />
+            const defaultSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <defs>
+        <linearGradient id="defaultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#a78bfa;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="url(#defaultGrad)" />
+    <circle cx="12" cy="12" r="5" fill="#18181b" stroke="#f4f4f5" stroke-width="1.5" />
 </svg>`;
             svgInput.value = defaultSvg;
             
-            // --- CORE FUNCTIONS ---
+            // --- TAB SWITCHING LOGIC ---
+            tabButtonsContainer.addEventListener('click', (e) => {
+                const clickedTab = e.target.closest('.tab-btn');
+                if (!clickedTab) return;
 
-            /**
-             * Renders the SVG from the input textarea into the preview pane.
-             */
+                const tabName = clickedTab.dataset.tab;
+
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                clickedTab.classList.add('active');
+
+                tabContents.forEach(content => {
+                    if (content.id === `tab-content-${tabName}`) {
+                        content.classList.remove('hidden');
+                    } else {
+                        content.classList.add('hidden');
+                    }
+                });
+            });
+
+
+            // --- CORE FUNCTIONS ---
             function renderSvg() {
                 const svgString = svgInput.value;
-                livePreview.innerHTML = ''; // Clear previous preview
-                selectedElement = null; // Reset selection
+                livePreview.innerHTML = '';
+                selectedElement = null;
                 hideControls();
-
                 if (!svgString.trim()) {
                     livePreview.innerHTML = '<p class="text-zinc-500">Preview will appear here</p>';
                     updateOutput('');
                     return;
                 }
-
                 try {
-                    // Use DOMParser to safely parse the SVG string
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(svgString, 'image/svg+xml');
                     const svgNode = doc.querySelector('svg');
-
                     if (svgNode && !doc.querySelector('parsererror')) {
-                        // Style the SVG to fit the container
                         svgNode.style.width = '100%';
                         svgNode.style.height = '100%';
                         svgNode.style.maxWidth = '256px';
                         svgNode.style.maxHeight = '256px';
-
                         livePreview.appendChild(svgNode);
                         addClickListenersToSvgElements(svgNode);
                         updateOutput();
                     } else {
                         livePreview.innerHTML = '<p class="text-red-400">Invalid SVG code</p>';
-                        updateOutput('');
                     }
                 } catch (error) {
-                    console.error("SVG Parsing Error:", error);
                     livePreview.innerHTML = '<p class="text-red-400">Error parsing SVG</p>';
-                    updateOutput('');
                 }
             }
 
-            /**
-             * Attaches click event listeners to all interactive elements within the SVG.
-             * @param {SVGSVGElement} svgNode The root SVG element.
-             */
             function addClickListenersToSvgElements(svgNode) {
                 const elements = svgNode.querySelectorAll('path, rect, circle, ellipse, line, polyline, polygon, text');
                 elements.forEach(el => {
                     el.style.cursor = 'pointer';
                     el.addEventListener('click', (event) => {
-                        event.stopPropagation(); // Prevent event bubbling
+                        event.stopPropagation();
                         selectElement(el);
                     });
                 });
             }
 
-            /**
-             * Handles the selection of an SVG element.
-             * @param {SVGElement} el The element that was clicked.
-             */
             function selectElement(el) {
-                // Remove highlight from previously selected element
                 if (selectedElement) {
                     selectedElement.classList.remove('selected-svg-element');
                 }
-                
-                // Set and highlight the new element
                 selectedElement = el;
                 selectedElement.classList.add('selected-svg-element');
-
-                // Populate controls with the element's current properties
                 populateControls(selectedElement);
                 showControls();
             }
 
-            /**
-             * Populates the control panel with the properties of the selected element.
-             * @param {SVGElement} el The selected SVG element.
-             */
             function populateControls(el) {
-                // Get computed styles for accurate color representation
                 const computedStyle = window.getComputedStyle(el);
-
-                // Fill Color
-                const fill = el.getAttribute('fill') || computedStyle.getPropertyValue('fill') || '#000000';
-                fillColorInput.value = rgbToHex(fill);
-
-                // Stroke Color
-                const stroke = el.getAttribute('stroke') || computedStyle.getPropertyValue('stroke') || '#000000';
-                strokeColorInput.value = rgbToHex(stroke);
-
-                // Stroke Width
-                const strokeWidth = parseFloat(el.getAttribute('stroke-width') || computedStyle.getPropertyValue('stroke-width') || '1');
+                const strokeWidth = parseFloat(el.getAttribute('stroke-width') || computedStyle.getPropertyValue('stroke-width') || '0');
                 strokeWidthInput.value = strokeWidth;
                 strokeWidthValue.textContent = `${strokeWidth}px`;
-                
-                // Opacity
                 const opacity = parseFloat(el.getAttribute('opacity') || computedStyle.getPropertyValue('opacity') || '1');
                 opacityInput.value = opacity;
                 opacityValue.textContent = `${Math.round(opacity * 100)}%`;
+                updateButtonGroupState(strokeLinecapGroup, '.linecap-btn', el.getAttribute('stroke-linecap') || 'butt');
+                updateButtonGroupState(strokeLinejoinGroup, '.linejoin-btn', el.getAttribute('stroke-linejoin') || 'miter');
+                setupPaintControls('fill', el);
+                setupPaintControls('stroke', el);
+                populateAdvancedControls(el);
+            }
+            
+            function populateAdvancedControls(el) {
+                // Hide all first
+                let hasAdvanced = false;
+                for (const key in advancedControls) {
+                    advancedControls[key].control.classList.add('hidden');
+                    advancedControls[key].control.classList.remove('flex');
+                }
+
+                const tagName = el.tagName.toLowerCase();
+                let attrsToShow = [];
+
+                switch (tagName) {
+                    case 'circle':
+                        attrsToShow = ['cx', 'cy', 'r'];
+                        break;
+                    case 'ellipse':
+                        attrsToShow = ['cx', 'cy', 'rx', 'ry'];
+                        break;
+                    case 'rect':
+                        attrsToShow = ['x', 'y', 'width', 'height', 'rx', 'ry'];
+                        break;
+                }
+
+                if(attrsToShow.length > 0) {
+                    hasAdvanced = true;
+                    attrsToShow.forEach(attr => {
+                        if(advancedControls[attr]) {
+                            const { control, input } = advancedControls[attr];
+                            control.classList.remove('hidden');
+                            control.classList.add('flex');
+                            input.value = el.getAttribute(attr) || 0;
+                        }
+                    });
+                }
+                
+                advancedPropertiesWrapper.style.display = hasAdvanced ? 'block' : 'none';
             }
 
-            /**
-             * Updates the selected element's attribute based on control changes.
-             * @param {string} attribute The SVG attribute to change (e.g., 'fill', 'stroke-width').
-             * @param {string|number} value The new value for the attribute.
-             */
             function updateSelectedElement(attribute, value) {
                 if (selectedElement) {
+                    if (attribute.endsWith('url(#)')) return;
                     selectedElement.setAttribute(attribute, value);
                     updateOutput();
                 }
             }
-
-            /**
-             * Updates the output textarea with the current SVG's outerHTML.
-             */
+            
             function updateOutput() {
                 const svgNode = livePreview.querySelector('svg');
                 if (svgNode) {
-                    // Clone the node to remove our custom class and styles before outputting
                     const clone = svgNode.cloneNode(true);
-                    clone.style.width = null; // Remove inline styles we added
+                    clone.style.width = null;
                     clone.style.height = null;
                     clone.style.maxWidth = null;
                     clone.style.maxHeight = null;
                     clone.querySelectorAll('.selected-svg-element').forEach(el => el.classList.remove('selected-svg-element'));
-                    
-                    // A simple formatter for readability
-                    const formattedCode = formatSvg(clone.outerHTML);
-                    svgOutput.value = formattedCode;
+                    svgOutput.value = formatSvg(clone.outerHTML);
                 } else {
                     svgOutput.value = '';
                 }
             }
+            
+            // --- GRADIENT FUNCTIONS ---
+            function setupPaintControls(prop, el) {
+                const paintValue = el.getAttribute(prop) || window.getComputedStyle(el)[prop];
+                const isGradient = paintValue.startsWith('url(');
+                const solidControls = document.getElementById(`${prop}-solid-controls`);
+                const gradientControls = document.getElementById(`${prop}-gradient-controls`);
+                const solidColorInput = document.getElementById(`${prop}-color`);
+                if (isGradient) {
+                    solidControls.classList.add('hidden');
+                    gradientControls.classList.remove('hidden');
+                    updateButtonGroupState(null, `.${prop}-mode-btn`, 'gradient');
+                    const gradientId = paintValue.match(/url\(#([^)]+)\)/)[1];
+                    const gradientElement = getSvgRoot().querySelector(`#${gradientId}`);
+                    if (gradientElement) {
+                        populateGradientEditor(prop, gradientElement);
+                    }
+                } else {
+                    solidControls.classList.remove('hidden');
+                    gradientControls.classList.add('hidden');
+                    updateButtonGroupState(null, `.${prop}-mode-btn`, 'solid');
+                    solidColorInput.value = rgbToHex(paintValue);
+                }
+            }
+            function populateGradientEditor(prop, gradientEl) {
+                const bar = document.getElementById(`${prop}-gradient-bar`);
+                const stops = Array.from(gradientEl.querySelectorAll('stop'));
+                bar.innerHTML = '';
+                stops.forEach((stop, index) => {
+                    const offset = parseFloat(stop.getAttribute('offset').replace('%', ''));
+                    const color = stop.style.stopColor;
+                    const stopPin = document.createElement('div');
+                    stopPin.className = 'gradient-stop';
+                    stopPin.style.left = `${offset}%`;
+                    stopPin.dataset.index = index;
+                    stopPin.innerHTML = `<div class="gradient-stop-pin" style="background-color: ${color};"></div><div class="gradient-stop-remove absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full bg-red-600 w-5 h-5 rounded-full items-center justify-center text-white text-xs font-bold cursor-pointer">&times;</div>`;
+                    bar.appendChild(stopPin);
+                });
+                updateGradientBarBackground(prop, gradientEl);
+                if (gradientEl.tagName === 'linearGradient') {
+                    const rotationControl = document.getElementById(`${prop}-gradient-rotation`);
+                    const x1 = parseFloat(gradientEl.getAttribute('x1') || 0);
+                    const y1 = parseFloat(gradientEl.getAttribute('y1') || 0);
+                    const x2 = parseFloat(gradientEl.getAttribute('x2') || 1);
+                    const y2 = parseFloat(gradientEl.getAttribute('y2') || 0);
+                    const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+                    rotationControl.value = angle;
+                }
+            }
+            function updateGradientBarBackground(prop, gradientEl) {
+                const bar = document.getElementById(`${prop}-gradient-bar`);
+                const stops = Array.from(gradientEl.querySelectorAll('stop'));
+                stops.sort((a, b) => parseFloat(a.getAttribute('offset')) - parseFloat(b.getAttribute('offset')));
+                const gradientCss = stops.map(stop => `${stop.style.stopColor} ${stop.getAttribute('offset')}`).join(', ');
+                bar.style.background = `linear-gradient(to right, ${gradientCss})`;
+            }
+            function switchPaintMode(prop, mode) {
+                if (!selectedElement) return;
+                const solidControls = document.getElementById(`${prop}-solid-controls`);
+                const gradientControls = document.getElementById(`${prop}-gradient-controls`);
+                updateButtonGroupState(null, `.${prop}-mode-btn`, mode);
+                if (mode === 'solid') {
+                    solidControls.classList.remove('hidden');
+                    gradientControls.classList.add('hidden');
+                    const colorInput = document.getElementById(`${prop}-color`);
+                    updateSelectedElement(prop, colorInput.value);
+                } else {
+                    solidControls.classList.add('hidden');
+                    gradientControls.classList.remove('hidden');
+                    const defs = getOrCreateDefs();
+                    const newGradId = `vectorxone-grad-${gradientCounter++}`;
+                    const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+                    gradient.setAttribute('id', newGradId);
+                    gradient.setAttribute('x1', '0%');
+                    gradient.setAttribute('y1', '0%');
+                    gradient.setAttribute('x2', '100%');
+                    gradient.setAttribute('y2', '0%');
+                    const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                    stop1.setAttribute('offset', '0%');
+                    stop1.style.stopColor = '#ffffff';
+                    const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                    stop2.setAttribute('offset', '100%');
+                    stop2.style.stopColor = '#000000';
+                    gradient.appendChild(stop1);
+                    gradient.appendChild(stop2);
+                    defs.appendChild(gradient);
+                    updateSelectedElement(prop, `url(#${newGradId})`);
+                    populateGradientEditor(prop, gradient);
+                }
+            }
+            function selectGradientStop(prop, stopPinEl) {
+                 if (selectedGradientStop[prop]) {
+                    selectedGradientStop[prop].classList.remove('active');
+                }
+                selectedGradientStop[prop] = stopPinEl;
+                stopPinEl.classList.add('active');
+                const gradientEl = getCurrentGradientElement(prop);
+                const stopIndex = stopPinEl.dataset.index;
+                const stopEl = gradientEl.querySelectorAll('stop')[stopIndex];
+                const stopControls = document.getElementById(`${prop}-stop-controls`);
+                const colorControl = document.getElementById(`${prop}-stop-color`);
+                const offsetControl = document.getElementById(`${prop}-stop-offset`);
+                stopControls.classList.remove('hidden');
+                colorControl.value = rgbToHex(stopEl.style.stopColor);
+                offsetControl.value = parseFloat(stopEl.getAttribute('offset').replace('%',''));
+            }
 
-            /**
-             * Shows the dynamic controls and hides the placeholder.
-             */
+            // --- UTILITY FUNCTIONS ---
+            function getSvgRoot() { return livePreview.querySelector('svg'); }
+            function getOrCreateDefs() {
+                const svg = getSvgRoot();
+                let defs = svg.querySelector('defs');
+                if (!defs) {
+                    defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                    svg.insertBefore(defs, svg.firstChild);
+                }
+                return defs;
+            }
+            function getCurrentGradientElement(prop) {
+                if (!selectedElement) return null;
+                const paintValue = selectedElement.getAttribute(prop);
+                if (!paintValue || !paintValue.startsWith('url(')) return null;
+                const gradientId = paintValue.match(/url\(#([^)]+)\)/)[1];
+                return getSvgRoot().querySelector(`#${gradientId}`);
+            }
+            function updateButtonGroupState(groupElement, selector, value) {
+                const buttons = groupElement ? groupElement.querySelectorAll(selector) : document.querySelectorAll(selector);
+                buttons.forEach(btn => {
+                    if (btn.dataset.value === value) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+            }
+            function rgbToHex(rgb) {
+                if (!rgb || rgb.startsWith('#')) return rgb || '#000000';
+                if (rgb === 'none') return '#000000';
+                let match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+                if (match) {
+                    return "#" + ((1 << 24) + (+match[1] << 16) + (+match[2] << 8) + +match[3]).toString(16).slice(1).toUpperCase();
+                }
+                return rgb;
+            }
+            function formatSvg(svgString) {
+                return svgString.replace(/></g, '>\n  <').replace(/<(svg|defs|linearGradient|g|path|rect|circle|line|polygon|polyline|text|stop)/g, '\n<$1').replace(/<\/svg>/g, '\n</svg>').trim();
+            }
             function showControls() {
                 controlsPlaceholder.classList.add('hidden');
                 dynamicControls.classList.remove('hidden');
             }
-
-            /**
-             * Hides the dynamic controls and shows the placeholder.
-             */
             function hideControls() {
                 controlsPlaceholder.classList.remove('hidden');
                 dynamicControls.classList.add('hidden');
-            }
-
-            // --- UTILITY FUNCTIONS ---
-
-            /**
-             * Converts an RGB color string to a HEX string.
-             * @param {string} rgb The RGB color string (e.g., 'rgb(255, 0, 0)').
-             * @returns {string} The HEX color string (e.g., '#ff0000').
-             */
-            function rgbToHex(rgb) {
-                if (rgb.startsWith('#')) return rgb;
-                if (rgb === 'none' || !rgb) return '#000000';
-
-                let sep = rgb.indexOf(",") > -1 ? "," : " ";
-                rgb = rgb.substr(4).split(")")[0].split(sep);
-                
-                let r = (+rgb[0]).toString(16),
-                    g = (+rgb[1]).toString(16),
-                    b = (+rgb[2]).toString(16);
-
-                if (r.length == 1) r = "0" + r;
-                if (g.length == 1) g = "0" + g;
-                if (b.length == 1) b = "0" + b;
-
-                return "#" + r + g + b;
-            }
-
-            /**
-             * Simple SVG formatter to add newlines for better readability.
-             * @param {string} svgString The raw SVG string.
-             * @returns {string} The formatted SVG string.
-             */
-            function formatSvg(svgString) {
-                return svgString
-                    .replace(/></g, '>\n  <')
-                    .replace(/<(svg|g|path|rect|circle|line|polygon|text)/g, '\n<$1')
-                    .replace(/<\/svg>/g, '\n</svg>')
-                    .trim();
+                selectedGradientStop = { fill: null, stroke: null };
             }
 
             // --- EVENT LISTENERS ---
-
-            // Update preview on input change
             svgInput.addEventListener('input', renderSvg);
-
-            // Control panel event listeners
-            fillColorInput.addEventListener('input', (e) => updateSelectedElement('fill', e.target.value));
-            strokeColorInput.addEventListener('input', (e) => updateSelectedElement('stroke', e.target.value));
-            
+            importButton.addEventListener('click', () => importFileInput.click());
+            importFileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    svgInput.value = e.target.result;
+                    renderSvg();
+                };
+                reader.readAsText(file);
+                importFileInput.value = '';
+            });
+            exportButton.addEventListener('click', () => {
+                const svgContent = svgOutput.value;
+                if (!svgContent) return;
+                const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'edited-vector.svg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
             strokeWidthInput.addEventListener('input', (e) => {
                 const value = e.target.value;
                 strokeWidthValue.textContent = `${value}px`;
                 updateSelectedElement('stroke-width', value);
             });
-
             opacityInput.addEventListener('input', (e) => {
                 const value = e.target.value;
                 opacityValue.textContent = `${Math.round(value * 100)}%`;
                 updateSelectedElement('opacity', value);
             });
-
-            // Copy to clipboard functionality
+            strokeLinecapGroup.addEventListener('click', (e) => {
+                if (e.target.matches('.linecap-btn')) {
+                    const value = e.target.dataset.value;
+                    updateSelectedElement('stroke-linecap', value);
+                    updateButtonGroupState(strokeLinecapGroup, '.linecap-btn', value);
+                }
+            });
+            strokeLinejoinGroup.addEventListener('click', (e) => {
+                if (e.target.matches('.linejoin-btn')) {
+                    const value = e.target.dataset.value;
+                    updateSelectedElement('stroke-linejoin', value);
+                    updateButtonGroupState(strokeLinejoinGroup, '.linejoin-btn', value);
+                }
+            });
+            fillColorInput.addEventListener('input', (e) => updateSelectedElement('fill', e.target.value));
+            strokeColorInput.addEventListener('input', (e) => updateSelectedElement('stroke', e.target.value));
+            document.body.addEventListener('click', e => {
+                const target = e.target;
+                if (target.matches('.fill-mode-btn') || target.matches('.stroke-mode-btn')) {
+                    switchPaintMode(target.dataset.prop, target.dataset.mode);
+                }
+            });
+            ['fill', 'stroke'].forEach(prop => {
+                const bar = document.getElementById(`${prop}-gradient-bar`);
+                const stopColorInput = document.getElementById(`${prop}-stop-color`);
+                const stopOffsetInput = document.getElementById(`${prop}-stop-offset`);
+                const rotationInput = document.getElementById(`${prop}-gradient-rotation`);
+                bar.addEventListener('click', e => {
+                    const target = e.target;
+                    if (target.closest('.gradient-stop-remove')) {
+                        const stopPinEl = target.closest('.gradient-stop');
+                        const gradientEl = getCurrentGradientElement(prop);
+                        if (gradientEl && gradientEl.querySelectorAll('stop').length > 2) {
+                             const stopIndex = stopPinEl.dataset.index;
+                             gradientEl.querySelectorAll('stop')[stopIndex].remove();
+                             document.getElementById(`${prop}-stop-controls`).classList.add('hidden');
+                             populateGradientEditor(prop, gradientEl);
+                             updateOutput();
+                        }
+                        return;
+                    }
+                    if (target.closest('.gradient-stop')) {
+                        selectGradientStop(prop, target.closest('.gradient-stop'));
+                    } else if (target.id.endsWith('-gradient-bar')) {
+                        const rect = bar.getBoundingClientRect();
+                        const offsetPercent = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+                        const gradientEl = getCurrentGradientElement(prop);
+                        const newStop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                        newStop.setAttribute('offset', `${offsetPercent}%`);
+                        newStop.style.stopColor = '#ffffff';
+                        gradientEl.appendChild(newStop);
+                        populateGradientEditor(prop, gradientEl);
+                        updateOutput();
+                    }
+                });
+                stopColorInput.addEventListener('input', e => {
+                    if (selectedGradientStop[prop]) {
+                        const gradientEl = getCurrentGradientElement(prop);
+                        const stopIndex = selectedGradientStop[prop].dataset.index;
+                        const stopEl = gradientEl.querySelectorAll('stop')[stopIndex];
+                        stopEl.style.stopColor = e.target.value;
+                        populateGradientEditor(prop, gradientEl);
+                        updateOutput();
+                    }
+                });
+                stopOffsetInput.addEventListener('input', e => {
+                    if (selectedGradientStop[prop]) {
+                        const gradientEl = getCurrentGradientElement(prop);
+                        const stopIndex = selectedGradientStop[prop].dataset.index;
+                        const stopEl = gradientEl.querySelectorAll('stop')[stopIndex];
+                        stopEl.setAttribute('offset', `${e.target.value}%`);
+                        populateGradientEditor(prop, gradientEl);
+                        updateOutput();
+                    }
+                });
+                rotationInput.addEventListener('input', e => {
+                    const angle = parseFloat(e.target.value);
+                    const rad = angle * (Math.PI / 180);
+                    const x2 = Math.cos(rad);
+                    const y2 = Math.sin(rad);
+                    const gradientEl = getCurrentGradientElement(prop);
+                    if (gradientEl.tagName === 'linearGradient') {
+                        gradientEl.setAttribute('x1', '0%');
+                        gradientEl.setAttribute('y1', '0%');
+                        gradientEl.setAttribute('x2', `${(x2 + 1) * 50}%`);
+                        gradientEl.setAttribute('y2', `${(y2 + 1) * 50}%`);
+                        updateOutput();
+                    }
+                });
+            });
             copyButton.addEventListener('click', () => {
                 svgOutput.select();
-                // Using document.execCommand as a fallback for iframe compatibility
                 try {
                     document.execCommand('copy');
                     copyButton.textContent = 'Copied!';
                     setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
                 } catch (err) {
-                    console.error('Failed to copy text: ', err);
                     copyButton.textContent = 'Error!';
-                    setTimeout(() => { copyButton.textContent = 'Copy'; }, 2000);
                 }
             });
+            
+            // Add event listeners for advanced controls
+            for (const attr in advancedControls) {
+                advancedControls[attr].input.addEventListener('input', (e) => {
+                    updateSelectedElement(attr, e.target.value);
+                });
+            }
 
-            // Initial render on page load
+            // Initial render
             renderSvg();
         });
     </script>
 </body>
 </html>
+
