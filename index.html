@@ -4,7 +4,7 @@
     <!-- This is the main page. This is a landing page website -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VectorXone By Aspxone- Fast & Simple SVG Editing</title>
+    <title>VectorXone By Aspxone - Fast & Simple SVG Editing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,6 +19,129 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        /* Define the continuous spin animation for buttons */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg) scale(1.05);
+            }
+            to {
+                transform: rotate(360deg) scale(1.05);
+            }
+        }
+
+        /* --- Custom CSS for Modern Gradient Hover Outline (Buttons) --- */
+        .gradient-border-wrapper {
+            padding: 3px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease-out;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-border-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg, 
+                #a78bfa, /* Purple */
+                #60a5fa, /* Blue */
+                #3b82f6, /* Darker Blue */
+                #a78bfa /* Loop back */
+            );
+            z-index: 0;
+            opacity: 0; 
+            transition: opacity 0.5s ease-out;
+        }
+
+        .gradient-border-wrapper:hover::before {
+            opacity: 1;
+            animation: spin 3s linear infinite; 
+        }
+
+        /* Style for ALL button content */
+        .button-content {
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #18181b; 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            color: #ffffff;
+        }
+
+        /* Hover effect for all buttons in the wrapper */
+        .gradient-border-wrapper:hover .button-content {
+            background-color: #111827; 
+            border: 1px solid transparent;
+        }
+        
+        /* --- Custom CSS for Neon/Gradient Feature Cards --- */
+        
+        /* Base feature card container - keep general lift transition */
+        .feature-card {
+            transition: all 0.4s ease-in-out;
+            border: 1px solid transparent; 
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px); /* Lift card slightly */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle hover border */
+        }
+
+        /* Icon backgrounds within the card */
+        .feature-icon-wrapper {
+            transition: box-shadow 0.4s ease-in-out;
+            box-shadow: 0 0 0 transparent; /* Default no shadow */
+        }
+        
+        /* 1. Blue Glow (Paste Any SVG) - Uses Blue-400 (#60a5fa) */
+        .neon-blue-hover:hover {
+            box-shadow: 
+                0 0 10px rgba(96, 165, 250, 0.8), /* Blue-400 light glow */
+                0 0 20px rgba(59, 130, 246, 0.6); /* Blue-500 deep glow */
+        }
+        .neon-blue-hover:hover .feature-icon-wrapper {
+            box-shadow: 0 0 8px rgba(96, 165, 250, 0.9);
+        }
+
+        /* 2. Purple Glow (Instant Live Preview) - Uses Violet-400 (#a78bfa) */
+        .neon-purple-hover:hover {
+            box-shadow: 
+                0 0 10px rgba(167, 139, 250, 0.8), /* Violet-400 light glow */
+                0 0 20px rgba(139, 92, 246, 0.6); /* Violet-500 deep glow */
+        }
+        .neon-purple-hover:hover .feature-icon-wrapper {
+            box-shadow: 0 0 8px rgba(167, 139, 250, 0.9);
+        }
+        
+        /* 3. Green Glow (Visual Property Controls) - Uses Green-400 (#4ade80) */
+        .neon-green-hover:hover {
+             box-shadow: 
+                0 0 10px rgba(74, 222, 128, 0.8), /* Green-400 light glow */
+                0 0 20px rgba(34, 197, 94, 0.6); /* Green-500 deep glow */
+        }
+        .neon-green-hover:hover .feature-icon-wrapper {
+            box-shadow: 0 0 8px rgba(74, 222, 128, 0.9);
+        }
+
+        /* 4. Yellow Glow (Real-time Code Output) - Uses Yellow-400 (#facc15) */
+        .neon-yellow-hover:hover {
+            box-shadow: 
+                0 0 10px rgba(250, 202, 21, 0.8), /* Yellow-400 light glow */
+                0 0 20px rgba(234, 179, 8, 0.6); /* Yellow-500 deep glow */
+        }
+        .neon-yellow-hover:hover .feature-icon-wrapper {
+            box-shadow: 0 0 8px rgba(250, 202, 21, 0.9);
+        }
     </style>
 </head>
 <body class="bg-zinc-900 text-zinc-300 antialiased">
@@ -28,9 +151,11 @@
         <a href="#">
             <img src="https://raw.githubusercontent.com/CanvasDeno/VectorXone/ad80bce51e9fb6bff4270645d3959b8b5228d938/VectorXone.svg" alt="logo_at_navbar">
         </a>
-        <!-- In a real application, this button would link to the editor tool -->
-        <a href="editor.html" class="bg-blue-600 text-white font-medium py-2 px-5 rounded-lg hover:bg-blue-500 transition-colors">
-            Launch Editor
+        <!-- Secondary Button: Uses .button-content -->
+        <a href="editor.html" class="gradient-border-wrapper inline-block hover:shadow-xl hover:shadow-blue-500/30">
+            <div class="button-content font-medium py-2 px-5 text-base">
+                Launch Editor
+            </div>
         </a>
     </header>
 
@@ -39,26 +164,27 @@
         <section class="text-center py-20 lg:py-32 px-6">
             <div class="container mx-auto">
                 <h2 class="text-4xl md:text-6xl font-black text-white leading-tight mb-4">
-                    Effortless <span class="gradient-text">SVG</span> Editing is Here.
+                    <span class="gradient-text">VectorXone 2.0</span> is here.
                 </h2>
                 <p class="text-lg md:text-xl text-zinc-400 max-w-3xl mx-auto mb-8">
                     VectorXone is a lightning-fast, browser-based tool for developers and designers to tweak SVGs without the bloat of heavy design software. Paste, click, edit, and copy. It's that simple.
                 </p>
-                <!-- In a real application, this button would link to the editor tool -->
-               <center>
-                <a href="https://www.producthunt.com/products/vectorxone?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-vectorxone" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1006489&theme=dark&t=1755596102364" alt="VectorXone - Tweak&#0032;SVGs&#0044;&#0032;No&#0032;bloat&#0044;&#0032;No&#0032;payments&#0032;nor&#0032;any&#0032;spyware&#0046; | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-                <br>
-                <iframe src="https://www.canva.com/design/DAGwaRIpdP0/KGGwd8EEltjpwZeMC3oUUA/watch?embed" height="700px" width="850px;">
-                </iframe>
-                </center>
-                <br>
-                <a href="editor.html" class="bg-blue-600 text-white font-bold py-4 px-8 rounded-lg text-lg hover:bg-blue-500 transition-transform transform hover:scale-105 inline-block">
-                    Try VectorXone Now
+                
+                <!-- Product Hunt Badge (Kept and Centered) -->
+                <div class="mb-10 flex justify-center">
+                    <a href="https://www.producthunt.com/products/vectorxone?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-vectorxone" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1006489&theme=dark&t=1755596102364" alt="VectorXone | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+                </div>
+
+                <!-- Main CTA Button: Now uses the same .button-content style as all others -->
+                <a href="editor.html" class="gradient-border-wrapper inline-block hover:shadow-xl hover:shadow-blue-500/30">
+                    <div class="button-content font-bold py-4 px-8 text-lg">
+                        Launch VectorXone 2.0 App!
+                    </div>
                 </a>
             </div>
         </section>
 
-        <!-- Features Section -->
+        <!-- Features Section (The Toolkit Section) -->
         <section id="features" class="py-20 bg-zinc-800/50">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
@@ -66,9 +192,10 @@
                     <p class="text-zinc-400 mt-2">Everything you need for quick vector modifications.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <!-- Feature 1 -->
-                    <div class="bg-zinc-800 p-6 rounded-lg">
-                        <div class="bg-blue-600/20 text-blue-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                    
+                    <!-- Feature 1: Paste Any SVG - NEON BLUE GLOW -->
+                    <div class="bg-zinc-800 p-6 rounded-lg feature-card neon-blue-hover">
+                        <div class="bg-blue-600/20 text-blue-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4 feature-icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                             </svg>
@@ -76,9 +203,10 @@
                         <h4 class="text-xl font-bold text-white mb-2">Paste Any SVG</h4>
                         <p class="text-zinc-400">Directly paste your raw SVG code into the editor to get started instantly.</p>
                     </div>
-                    <!-- Feature 2 -->
-                    <div class="bg-zinc-800 p-6 rounded-lg">
-                        <div class="bg-purple-600/20 text-purple-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+
+                    <!-- Feature 2: Instant Live Preview - NEON PURPLE GLOW -->
+                    <div class="bg-zinc-800 p-6 rounded-lg feature-card neon-purple-hover">
+                        <div class="bg-purple-600/20 text-purple-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4 feature-icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -87,9 +215,10 @@
                         <h4 class="text-xl font-bold text-white mb-2">Instant Live Preview</h4>
                         <p class="text-zinc-400">See your changes render in real-time as you edit. No more guesswork.</p>
                     </div>
-                    <!-- Feature 3 -->
-                    <div class="bg-zinc-800 p-6 rounded-lg">
-                        <div class="bg-green-600/20 text-green-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+
+                    <!-- Feature 3: Visual Property Controls - NEON GREEN GLOW -->
+                    <div class="bg-zinc-800 p-6 rounded-lg feature-card neon-green-hover">
+                        <div class="bg-green-600/20 text-green-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4 feature-icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                             </svg>
@@ -97,9 +226,10 @@
                         <h4 class="text-xl font-bold text-white mb-2">Visual Property Controls</h4>
                         <p class="text-zinc-400">Click any element to visually edit fill, stroke, opacity, and stroke-width.</p>
                     </div>
-                    <!-- Feature 4 -->
-                    <div class="bg-zinc-800 p-6 rounded-lg">
-                        <div class="bg-yellow-600/20 text-yellow-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+
+                    <!-- Feature 4: Real-time Code Output - NEON YELLOW GLOW -->
+                    <div class="bg-zinc-800 p-6 rounded-lg feature-card neon-yellow-hover">
+                        <div class="bg-yellow-600/20 text-yellow-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4 feature-icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                             </svg>
@@ -126,13 +256,23 @@
                  </h3>
                  <p class="text-zinc-400 mt-2 max-w-2xl mx-auto">VectorXone is a FOSS Project and needs community support to keep up running, VectorXone can be supported by bug reports, feature requests and users sharing the app to other users. So if you know any graphics designer working with SVG, then please recommend this tool to them, they might like it.</p>
                  <br>
-                  <a href="https://linktr.ee/aspxone" class="bg-blue-600 text-white font-medium py-2 px-5 rounded-lg hover:bg-blue-500 transition-colors">
-            Aspxone's site
-        </a>
-         <a href="https://github.com/CanvasDeno" class="bg-blue-600 text-white font-medium py-2 px-5 rounded-lg hover:bg-blue-500 transition-colors" style="margin: 5px;">
-            Github Repo
-        </a>
-        <div style="margin: 20px"></div>
+                  
+                <div class="flex justify-center space-x-4 mt-6">
+                    <!-- Secondary Button: Uses .button-content -->
+                    <a href="https://linktr.ee/aspxone" class="gradient-border-wrapper inline-block hover:shadow-xl hover:shadow-blue-500/30">
+                        <div class="button-content font-medium py-2 px-5 text-base">
+                            Aspxone's site
+                        </div>
+                    </a>
+                    <!-- Secondary Button: Uses .button-content -->
+                    <a href="https://github.com/CanvasDeno" class="gradient-border-wrapper inline-block hover:shadow-xl hover:shadow-blue-500/30">
+                        <div class="button-content font-medium py-2 px-5 text-base">
+                            Github Repo
+                        </div>
+                    </a>
+                </div>
+
+                <div class="mt-8"></div>
             </div>
         </section>
 
@@ -140,50 +280,28 @@
         <section class="py-20 bg-zinc-800/50">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h3 class="text-3xl font-bold text-white">Self-Hosting Commands</h3>
+                    <h3 class="text-3xl font-bold text-white">Download for Self-Hosting (Offline Use)</h3>
                     <p class="text-zinc-400 mt-2 max-w-2xl mx-auto">
-                        You can download the editor as an .html file and open it in your web browser.
-                        This can be used to have more privacy or just simply run it offline without an internet connection.
-                        This uses simple HTTPS, no complex FTP software or some other software needed, just paste this into your native terminal client.
+                        You can download the editor as a single `.html` file for privacy or offline use. Use the <code class="bg-zinc-700 px-1 py-0.5 rounded text-zinc-200">curl</code> command below.
                     </p>
-                    <br>
-                    <p class="font-bold" style="padding: 10px; background-color: #faeb78; border-radius: 10px; color: black; border: orange solid 1px">
-                       Some anti-malware/anti-virus software may block the shell system from running the scripts, Please disable the software before executing these scripts in your native terminal client. If you can't disable your anti-malware/anti-virus software, Please just use the git command and extract and use the editor.html file
+                    <p class="text-sm text-yellow-400 mt-4 font-medium max-w-2xl mx-auto">
+                        ⚠️ **Prerequisite:** This command requires the <code class="bg-black/50 px-1 rounded">curl</code> utility. If it's not installed on your system, please install it using your operating system's package manager first (e.g., <code class="bg-black/50 px-1 rounded">sudo apt install curl</code> on Debian/Ubuntu).
                     </p>
                 </div>
-                <div class="flex flex-col md:flex-row justify-center items-start gap-8">
-                    <!-- Bash Command -->
-                    <div class="bg-zinc-800 p-6 rounded-lg w-full md:w-1/2 relative">
-                        <h4 class="text-xl font-bold text-white mb-2">Bash/ZSH</h4>
-                        <p>For <b>Linux or MacOS.</b> You can also use this on windows and other OSes also by using your Bash/ZSH client.</p>
-                        <br>
-                        <div class="relative">
-                            <pre class="bg-black/50 p-4 rounded-lg overflow-x-auto text-sm" id="bash-code"><code>wget install https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/editor.html</code></pre>
-                            <button onclick="copyCode('bash-code')" class="absolute top-2 right-2 bg-zinc-700 hover:bg-zinc-600 text-white py-1 px-3 rounded-md text-xs transition-colors">
-                                Copy
-                            </button>
-                        </div>
-                    </div>
-                    <!-- PowerShell Command -->
-                    <div class="bg-zinc-800 p-6 rounded-lg w-full md:w-1/2 relative">
-                        <h4 class="text-xl font-bold text-white mb-2">PowerShell</h4>
-                        <p>For <b>Windows.</b> You can also use this on other OSes if you have powershell core installed on them.</p>
-                        <br>
-                        <div class="relative">
-                            <pre class="bg-black/50 p-4 rounded-lg overflow-x-auto text-sm" id="powershell-code"><code>irm "https://raw.githubusercontent.com/CanvasDeno/VectorXone/refs/heads/main/install.ps1" | iex</code></pre>
-                            <button onclick="copyCode('powershell-code')" class="absolute top-2 right-2 bg-zinc-700 hover:bg-zinc-600 text-white py-1 px-3 rounded-md text-xs transition-colors">
-                                Copy
-                            </button>
-                        </div>
+                <!-- Curl Command Block -->
+                <div class="bg-zinc-800 p-6 rounded-lg w-full max-w-2xl mx-auto relative">
+                    <div class="relative">
+                        <!-- Changed ID to curl-code and updated the command -->
+                        <pre class="bg-black/50 p-4 rounded-lg overflow-x-auto text-sm text-green-400" id="curl-code"><code>curl -i https://canvasdeno.github.io/VectorXone/editor.html</code></pre>
+                        <!-- Updated button to use the new ID -->
+                        <button onclick="copyCode('curl-code')" class="absolute top-2 right-2 bg-zinc-700 hover:bg-zinc-600 text-white py-1 px-3 rounded-md text-xs transition-colors">
+                            Copy
+                        </button>
                     </div>
                 </div>
-                
-            </div>
-            <br>
-            <center><p>Coming soon for BSD and UNIX...</p></center>
-        </section>
 
-    </main>
+            </div>
+        </section>
 
     <!-- Footer -->
     <footer class="border-t border-zinc-800">
