@@ -166,14 +166,40 @@
         .tab-btn:hover:not(.active) {
             background-color: #3f3f46; /* zinc-700 */
         }
-        .text-4xl {
-        background: #23CFD8;
-background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
 
-
+        /* --- Layer Item Styles --- */
+        .layer-item {
+            background-color: #3f3f46; /* zinc-700 */
+            transition: background-color 0.2s ease;
         }
+        .layer-item.selected {
+            background-color: #3b82f6; /* blue-500 */
+        }
+        .layer-item:hover:not(.selected) {
+            background-color: #52525b; /* zinc-600 */
+        }
+        .layer-name-input {
+            background-color: transparent;
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .layer-name-input:focus {
+            background-color: rgba(0,0,0,0.2);
+        }
+        .layer-action-btn {
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+        }
+        .layer-item:hover .layer-action-btn {
+            opacity: 1;
+        }
+        .layer-action-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -186,7 +212,7 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
 
         <!-- Header -->
         <header class="text-center mb-6">
-            <h2 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">VectorXone 2.0</h2>
+            <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">VectorXone</h1>
             <p class="mt-2 text-lg text-zinc-400">A simple, fast tool for editing SVG properties.</p>
         </header>
 
@@ -195,9 +221,10 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
              <!-- Left Column: Tabs Sidebar -->
             <div class="flex flex-col bg-zinc-800 rounded-lg shadow-lg overflow-hidden">
                 <!-- Tab Buttons -->
-                <div id="tab-buttons" class="flex-shrink-0 grid grid-cols-3 border-b border-zinc-700">
-                    <button data-tab="input" class="tab-btn active w-full py-3 font-medium text-zinc-300">Input</button>
+                <div id="tab-buttons" class="flex-shrink-0 grid grid-cols-4 border-b border-zinc-700">
+                    <button data-tab="layers" class="tab-btn w-full py-3 font-medium text-zinc-300">Layers</button>
                     <button data-tab="properties" class="tab-btn w-full py-3 font-medium text-zinc-300">Properties</button>
+                    <button data-tab="input" class="tab-btn active w-full py-3 font-medium text-zinc-300">Input</button>
                     <button data-tab="output" class="tab-btn w-full py-3 font-medium text-zinc-300">Output</button>
                 </div>
                 <!-- Tab Content Panels -->
@@ -205,18 +232,26 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                      <!-- Input Tab Content -->
                     <div id="tab-content-input" class="tab-content absolute inset-0 flex flex-col">
                         <div class="flex-shrink-0 flex justify-between items-center p-4 bg-zinc-700/50 border-b border-zinc-700">
-                            <h2 class="text-lg font-semibold">1. SVG Code</h2>
+                            <h2 class="text-lg font-semibold">SVG Code</h2>
                             <button id="import-button" class="px-3 py-1 bg-zinc-600 text-white rounded-md text-sm font-medium hover:bg-zinc-500 transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-400">Import</button>
                         </div>
                         <textarea id="svg-input" class="w-full h-full p-4 bg-transparent text-zinc-300 font-mono text-sm resize-none focus:outline-none custom-scrollbar" placeholder="Paste your SVG code here..."></textarea>
+                    </div>
+                     <!-- Layers Tab Content -->
+                    <div id="tab-content-layers" class="tab-content hidden absolute inset-0 flex flex-col">
+                        <h2 class="flex-shrink-0 text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">Layers</h2>
+                        <div id="layers-list" class="flex-grow p-2 space-y-1 overflow-y-auto custom-scrollbar">
+                           <!-- Layer items will be dynamically inserted here -->
+                           <p id="layers-placeholder" class="text-zinc-500 text-center pt-8">No editable elements found.</p>
+                        </div>
                     </div>
 
                     <!-- Properties Tab Content -->
                     <div id="tab-content-properties" class="tab-content hidden absolute inset-0 flex flex-col">
                          <div id="controls-panel" class="w-full h-full flex flex-col">
-                             <h2 class="flex-shrink-0 text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">2. Edit Properties</h2>
+                             <h2 class="flex-shrink-0 text-lg font-semibold p-4 bg-zinc-700/50 border-b border-zinc-700">Edit Properties</h2>
                              <div id="controls-content" class="p-4 space-y-4 flex-grow overflow-y-auto custom-scrollbar">
-                                <p id="controls-placeholder" class="text-zinc-500 text-center pt-8">Click an element in the preview to edit it.</p>
+                                <p id="controls-placeholder" class="text-zinc-500 text-center pt-8">Select a layer to edit its properties.</p>
                                 <div id="dynamic-controls" class="hidden space-y-4">
                                      <div>
                                         <div class="flex items-center justify-between mb-1">
@@ -288,47 +323,25 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                                             <div><label for="stroke-gradient-rotation" class="text-sm mb-1 block">Direction</label><input type="range" id="stroke-gradient-rotation" min="0" max="360" step="1" value="90"></div>
                                         </div>
                                     </div>
-                                    <!-- Advanced Properties Section -->
-                                    <div id="advanced-properties-wrapper" class="pt-4 border-t border-zinc-700">
-                                        <details>
-                                            <summary class="font-medium text-zinc-300 cursor-pointer">Advanced Properties</summary>
-                                            <div class="mt-4 space-y-3">
-                                                <!-- Position & Size Controls -->
-                                                <div id="adv-cx-control" class="hidden items-center justify-between">
-                                                    <label for="adv-cx" class="text-sm text-zinc-400">Center X (cx)</label>
-                                                    <input type="number" id="adv-cx" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
-                                                </div>
-                                                <div id="adv-cy-control" class="hidden items-center justify-between">
-                                                    <label for="adv-cy" class="text-sm text-zinc-400">Center Y (cy)</label>
-                                                    <input type="number" id="adv-cy" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
-                                                </div>
-                                                <div id="adv-r-control" class="hidden items-center justify-between">
-                                                    <label for="adv-r" class="text-sm text-zinc-400">Radius (r)</label>
-                                                    <input type="number" id="adv-r" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
-                                                </div>
-                                                <div id="adv-rx-control" class="hidden items-center justify-between">
-                                                    <label for="adv-rx" class="text-sm text-zinc-400">Radius X (rx)</label>
-                                                    <input type="number" id="adv-rx" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
-                                                </div>
-                                                <div id="adv-ry-control" class="hidden items-center justify-between">
-                                                    <label for="adv-ry" class="text-sm text-zinc-400">Radius Y (ry)</label>
-                                                    <input type="number" id="adv-ry" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
-                                                </div>
-                                                <div id="adv-x-control" class="hidden items-center justify-between">
-                                                    <label for="adv-x" class="text-sm text-zinc-400">Position X (x)</label>
-                                                    <input type="number" id="adv-x" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
-                                                </div>
-                                                <div id="adv-y-control" class="hidden items-center justify-between">
-                                                    <label for="adv-y" class="text-sm text-zinc-400">Position Y (y)</label>
-                                                    <input type="number" id="adv-y" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
-                                                </div>
-                                                <div id="adv-width-control" class="hidden items-center justify-between">
-                                                    <label for="adv-width" class="text-sm text-zinc-400">Width</label>
-                                                    <input type="number" id="adv-width" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
-                                                </div>
-                                                <div id="adv-height-control" class="hidden items-center justify-between">
-                                                    <label for="adv-height" class="text-sm text-zinc-400">Height</label>
-                                                    <input type="number" id="adv-height" class="w-24 bg-zinc-700 text-white rounded p-1 text-sm">
+                                    <div class="pt-4 border-t border-zinc-700">
+                                        <details class="group">
+                                            <summary class="font-medium text-zinc-300 cursor-pointer list-none flex justify-between items-center">
+                                                <span>Advanced</span>
+                                                <svg class="w-4 h-4 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                                            </summary>
+                                            <div id="advanced-controls" class="mt-4 space-y-3">
+                                                <div id="control-cx" class="hidden flex items-center justify-between"><label for="attr-cx" class="text-sm font-mono text-zinc-400">cx</label><input type="number" id="attr-cx" class="w-3/5 bg-zinc-700 rounded px-2 py-1 text-sm text-white"></div>
+                                                <div id="control-cy" class="hidden flex items-center justify-between"><label for="attr-cy" class="text-sm font-mono text-zinc-400">cy</label><input type="number" id="attr-cy" class="w-3/5 bg-zinc-700 rounded px-2 py-1 text-sm text-white"></div>
+                                                <div id="control-x" class="hidden flex items-center justify-between"><label for="attr-x" class="text-sm font-mono text-zinc-400">x</label><input type="number" id="attr-x" class="w-3/5 bg-zinc-700 rounded px-2 py-1 text-sm text-white"></div>
+                                                <div id="control-y" class="hidden flex items-center justify-between"><label for="attr-y" class="text-sm font-mono text-zinc-400">y</label><input type="number" id="attr-y" class="w-3/5 bg-zinc-700 rounded px-2 py-1 text-sm text-white"></div>
+                                                <div id="control-width" class="hidden flex items-center justify-between"><label for="attr-width" class="text-sm font-mono text-zinc-400">width</label><input type="number" id="attr-width" min="0" class="w-3/5 bg-zinc-700 rounded px-2 py-1 text-sm text-white"></div>
+                                                <div id="control-height" class="hidden flex items-center justify-between"><label for="attr-height" class="text-sm font-mono text-zinc-400">height</label><input type="number" id="attr-height" min="0" class="w-3/5 bg-zinc-700 rounded px-2 py-1 text-sm text-white"></div>
+                                                <div id="control-r" class="hidden flex items-center justify-between"><label for="attr-r" class="text-sm font-mono text-zinc-400">r</label><input type="number" id="attr-r" min="0" class="w-3/5 bg-zinc-700 rounded px-2 py-1 text-sm text-white"></div>
+                                                <div id="control-rx" class="hidden flex items-center justify-between"><label for="attr-rx" class="text-sm font-mono text-zinc-400">rx</label><input type="number" id="attr-rx" min="0" class="w-3/5 bg-zinc-700 rounded px-2 py-1 text-sm text-white"></div>
+                                                <div id="control-ry" class="hidden flex items-center justify-between"><label for="attr-ry" class="text-sm font-mono text-zinc-400">ry</label><input type="number" id="attr-ry" min="0" class="w-3/5 bg-zinc-700 rounded px-2 py-1 text-sm text-white"></div>
+                                                <div id="control-d" class="hidden flex flex-col space-y-1 pt-2 border-t border-zinc-700/50">
+                                                    <label for="attr-d" class="text-sm font-mono text-zinc-400">d (path data)</label>
+                                                    <textarea id="attr-d" rows="4" class="w-full bg-zinc-700 rounded px-2 py-1 text-sm font-mono custom-scrollbar resize-y text-white"></textarea>
                                                 </div>
                                             </div>
                                         </details>
@@ -341,7 +354,7 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                      <!-- Output Tab Content -->
                     <div id="tab-content-output" class="tab-content hidden absolute inset-0 flex flex-col">
                         <div class="flex-shrink-0 flex justify-between items-center p-4 bg-zinc-700/50 border-b border-zinc-700">
-                           <h2 class="text-lg font-semibold">3. Get Updated Code</h2>
+                           <h2 class="text-lg font-semibold">Updated Code</h2>
                             <div class="flex items-center gap-2">
                                 <button id="copy-button" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400">Copy</button>
                                 <button id="export-button" class="px-3 py-1 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-500 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400">Export</button>
@@ -372,6 +385,11 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
             const livePreview = document.getElementById('live-preview');
             const svgOutput = document.getElementById('svg-output');
             const copyButton = document.getElementById('copy-button');
+            const importButton = document.getElementById('import-button');
+            const importFileInput = document.getElementById('import-file-input');
+            const exportButton = document.getElementById('export-button');
+
+            // Properties Tab elements
             const controlsPlaceholder = document.getElementById('controls-placeholder');
             const dynamicControls = document.getElementById('dynamic-controls');
             const strokeWidthInput = document.getElementById('stroke-width');
@@ -380,9 +398,6 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
             const opacityValue = document.getElementById('opacity-value');
             const strokeLinecapGroup = document.getElementById('stroke-linecap-group');
             const strokeLinejoinGroup = document.getElementById('stroke-linejoin-group');
-            const importButton = document.getElementById('import-button');
-            const importFileInput = document.getElementById('import-file-input');
-            const exportButton = document.getElementById('export-button');
             const fillColorInput = document.getElementById('fill-color');
             const fillSolidControls = document.getElementById('fill-solid-controls');
             const fillGradientControls = document.getElementById('fill-gradient-controls');
@@ -399,71 +414,58 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
             const strokeStopColor = document.getElementById('stroke-stop-color');
             const strokeStopOffset = document.getElementById('stroke-stop-offset');
             const strokeGradientRotation = document.getElementById('stroke-gradient-rotation');
-            const advancedPropertiesWrapper = document.getElementById('advanced-properties-wrapper');
-
-            const advancedControls = {
-                cx: { control: document.getElementById('adv-cx-control'), input: document.getElementById('adv-cx') },
-                cy: { control: document.getElementById('adv-cy-control'), input: document.getElementById('adv-cy') },
-                r:  { control: document.getElementById('adv-r-control'),  input: document.getElementById('adv-r') },
-                rx: { control: document.getElementById('adv-rx-control'), input: document.getElementById('adv-rx') },
-                ry: { control: document.getElementById('adv-ry-control'), input: document.getElementById('adv-ry') },
-                x:  { control: document.getElementById('adv-x-control'),  input: document.getElementById('adv-x') },
-                y:  { control: document.getElementById('adv-y-control'),  input: document.getElementById('adv-y') },
-                width: { control: document.getElementById('adv-width-control'), input: document.getElementById('adv-width') },
-                height:{ control: document.getElementById('adv-height-control'), input: document.getElementById('adv-height') }
-            };
+            const advancedControlsContainer = document.getElementById('advanced-controls');
+            const allAdvancedControls = advancedControlsContainer.querySelectorAll('div[id^="control-"]');
+            const allAdvancedInputs = advancedControlsContainer.querySelectorAll('input, textarea');
 
             // Tab UI elements
             const tabButtonsContainer = document.getElementById('tab-buttons');
             const tabButtons = tabButtonsContainer.querySelectorAll('.tab-btn');
             const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Layers Tab elements
+            const layersList = document.getElementById('layers-list');
+            const layersPlaceholder = document.getElementById('layers-placeholder');
 
             // State variables
             let selectedElement = null;
             let selectedGradientStop = { fill: null, stroke: null };
             let gradientCounter = 0;
+            let elementMap = new Map(); // Maps SVG elements to their layer UI items
 
-            const defaultSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" stroke="#e4e4e7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            const defaultSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24">
     <defs>
         <linearGradient id="defaultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
             <stop offset="100%" style="stop-color:#a78bfa;stop-opacity:1" />
         </linearGradient>
     </defs>
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="url(#defaultGrad)" />
-    <circle cx="12" cy="12" r="5" fill="#18181b" stroke="#f4f4f5" stroke-width="1.5" />
+    <rect id="background-rect" x="3" y="3" width="18" height="18" rx="2" ry="2" fill="url(#defaultGrad)" />
+    <circle id="inner-circle" cx="12" cy="12" r="5" fill="#18181b" stroke="#f4f4f5" stroke-width="1.5" />
 </svg>`;
             svgInput.value = defaultSvg;
             
             // --- TAB SWITCHING LOGIC ---
+            function switchTab(tabName) {
+                tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
+                tabContents.forEach(content => content.classList.toggle('hidden', content.id !== `tab-content-${tabName}`));
+            }
+
             tabButtonsContainer.addEventListener('click', (e) => {
                 const clickedTab = e.target.closest('.tab-btn');
-                if (!clickedTab) return;
-
-                const tabName = clickedTab.dataset.tab;
-
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                clickedTab.classList.add('active');
-
-                tabContents.forEach(content => {
-                    if (content.id === `tab-content-${tabName}`) {
-                        content.classList.remove('hidden');
-                    } else {
-                        content.classList.add('hidden');
-                    }
-                });
+                if (clickedTab) switchTab(clickedTab.dataset.tab);
             });
-
 
             // --- CORE FUNCTIONS ---
             function renderSvg() {
                 const svgString = svgInput.value;
                 livePreview.innerHTML = '';
-                selectedElement = null;
-                hideControls();
+                deselectElement();
+                
                 if (!svgString.trim()) {
                     livePreview.innerHTML = '<p class="text-zinc-500">Preview will appear here</p>';
                     updateOutput('');
+                    populateLayersTab();
                     return;
                 }
                 try {
@@ -477,17 +479,20 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                         svgNode.style.maxHeight = '256px';
                         livePreview.appendChild(svgNode);
                         addClickListenersToSvgElements(svgNode);
+                        populateLayersTab();
                         updateOutput();
                     } else {
                         livePreview.innerHTML = '<p class="text-red-400">Invalid SVG code</p>';
+                        populateLayersTab();
                     }
                 } catch (error) {
                     livePreview.innerHTML = '<p class="text-red-400">Error parsing SVG</p>';
+                    populateLayersTab();
                 }
             }
 
             function addClickListenersToSvgElements(svgNode) {
-                const elements = svgNode.querySelectorAll('path, rect, circle, ellipse, line, polyline, polygon, text');
+                const elements = getEditableElements(svgNode);
                 elements.forEach(el => {
                     el.style.cursor = 'pointer';
                     el.addEventListener('click', (event) => {
@@ -496,17 +501,141 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                     });
                 });
             }
+            
+            function getEditableElements(node) {
+                 return Array.from((node || getSvgRoot()).querySelectorAll('g, path, rect, circle, ellipse, line, polyline, polygon, text'));
+            }
 
             function selectElement(el) {
-                if (selectedElement) {
-                    selectedElement.classList.remove('selected-svg-element');
-                }
+                if (selectedElement === el) return;
+                deselectElement();
+                
                 selectedElement = el;
                 selectedElement.classList.add('selected-svg-element');
+                
+                // Highlight in layers tab
+                const layerItem = elementMap.get(el);
+                if (layerItem) {
+                    layerItem.classList.add('selected');
+                }
+
                 populateControls(selectedElement);
                 showControls();
             }
+            
+            function deselectElement() {
+                 if (selectedElement) {
+                    selectedElement.classList.remove('selected-svg-element');
+                     const oldLayerItem = elementMap.get(selectedElement);
+                    if (oldLayerItem) {
+                        oldLayerItem.classList.remove('selected');
+                    }
+                }
+                selectedElement = null;
+                hideControls();
+            }
 
+            // --- LAYERS TAB LOGIC ---
+            function populateLayersTab() {
+                const svgNode = getSvgRoot();
+                layersList.innerHTML = '';
+                elementMap.clear();
+
+                if (!svgNode) {
+                    layersPlaceholder.classList.remove('hidden');
+                    return;
+                }
+
+                const elements = getEditableElements(svgNode).reverse(); // Reverse to show top-most element first
+
+                if (elements.length === 0) {
+                     layersPlaceholder.classList.remove('hidden');
+                     return;
+                }
+                
+                layersPlaceholder.classList.add('hidden');
+
+                elements.forEach((el, index) => {
+                    const layerItem = createLayerItem(el, index);
+                    layersList.appendChild(layerItem);
+                    elementMap.set(el, layerItem);
+                });
+            }
+
+            function createLayerItem(el, index) {
+                const item = document.createElement('div');
+                item.className = 'layer-item p-2 rounded-md flex items-center gap-2 cursor-pointer';
+                const name = el.id || `${el.tagName.charAt(0).toUpperCase() + el.tagName.slice(1)} ${index + 1}`;
+
+                item.innerHTML = `
+                    <svg class="w-5 h-5 flex-shrink-0 text-zinc-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-2.25-1.313M21 7.5v2.25m0-2.25l-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3l2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0-2.25l2.25 1.313M4.5 9l7.5 4.375 7.5-4.375M4.5 9v6.125c0 .621.504 1.125 1.125 1.125h10.5c.621 0 1.125-.504 1.125-1.125V9" /></svg>
+                    <input class="layer-name-input flex-grow" type="text" value="${name}" readonly>
+                    <div class="flex items-center gap-1">
+                        <button class="layer-action-btn layer-up p-1 rounded-full"><svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg></button>
+                        <button class="layer-action-btn layer-down p-1 rounded-full"><svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg></button>
+                        <button class="layer-action-btn layer-delete p-1 rounded-full"><svg class="w-4 h-4 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.134-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.067-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></button>
+                    </div>
+                `;
+
+                // Select on click
+                item.addEventListener('click', (e) => {
+                    if (e.target.closest('.layer-action-btn')) return;
+                    selectElement(el);
+                });
+                
+                // Naming
+                const nameInput = item.querySelector('.layer-name-input');
+                nameInput.addEventListener('dblclick', () => {
+                     nameInput.removeAttribute('readonly');
+                     nameInput.focus();
+                     nameInput.select();
+                });
+                nameInput.addEventListener('blur', () => {
+                     nameInput.setAttribute('readonly', true);
+                     const newId = nameInput.value.trim().replace(/\s+/g, '-'); // Sanitize
+                     if (el.id !== newId) {
+                        el.id = newId;
+                        updateOutput();
+                        svgInput.value = svgOutput.value;
+                     }
+                });
+                 nameInput.addEventListener('keydown', (e) => {
+                    if(e.key === 'Enter') nameInput.blur();
+                });
+
+                // Actions
+                item.querySelector('.layer-up').addEventListener('click', () => moveElement(el, 'up'));
+                item.querySelector('.layer-down').addEventListener('click', () => moveElement(el, 'down'));
+                item.querySelector('.layer-delete').addEventListener('click', () => {
+                    deleteElement(el);
+                });
+
+                return item;
+            }
+
+            function moveElement(el, direction) {
+                const parent = el.parentNode;
+                if (direction === 'up') { // Moves up the list, which is forward in z-index
+                     const nextSibling = el.nextElementSibling;
+                     if(nextSibling) parent.insertBefore(nextSibling, el);
+                } else { // Moves down the list, which is backward in z-index
+                    const prevSibling = el.previousElementSibling;
+                    if(prevSibling) parent.insertBefore(el, prevSibling);
+                }
+                updateOutput();
+                svgInput.value = svgOutput.value;
+                populateLayersTab();
+            }
+
+            function deleteElement(el) {
+                el.remove();
+                deselectElement();
+                updateOutput();
+                svgInput.value = svgOutput.value;
+                populateLayersTab();
+            }
+
+            // --- PROPERTIES TAB & CONTROLS LOGIC ---
             function populateControls(el) {
                 const computedStyle = window.getComputedStyle(el);
                 const strokeWidth = parseFloat(el.getAttribute('stroke-width') || computedStyle.getPropertyValue('stroke-width') || '0');
@@ -520,44 +649,6 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                 setupPaintControls('fill', el);
                 setupPaintControls('stroke', el);
                 populateAdvancedControls(el);
-            }
-            
-            function populateAdvancedControls(el) {
-                // Hide all first
-                let hasAdvanced = false;
-                for (const key in advancedControls) {
-                    advancedControls[key].control.classList.add('hidden');
-                    advancedControls[key].control.classList.remove('flex');
-                }
-
-                const tagName = el.tagName.toLowerCase();
-                let attrsToShow = [];
-
-                switch (tagName) {
-                    case 'circle':
-                        attrsToShow = ['cx', 'cy', 'r'];
-                        break;
-                    case 'ellipse':
-                        attrsToShow = ['cx', 'cy', 'rx', 'ry'];
-                        break;
-                    case 'rect':
-                        attrsToShow = ['x', 'y', 'width', 'height', 'rx', 'ry'];
-                        break;
-                }
-
-                if(attrsToShow.length > 0) {
-                    hasAdvanced = true;
-                    attrsToShow.forEach(attr => {
-                        if(advancedControls[attr]) {
-                            const { control, input } = advancedControls[attr];
-                            control.classList.remove('hidden');
-                            control.classList.add('flex');
-                            input.value = el.getAttribute(attr) || 0;
-                        }
-                    });
-                }
-                
-                advancedPropertiesWrapper.style.display = hasAdvanced ? 'block' : 'none';
             }
 
             function updateSelectedElement(attribute, value) {
@@ -583,10 +674,31 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                 }
             }
             
-            // --- GRADIENT FUNCTIONS ---
+            function populateAdvancedControls(el) {
+                allAdvancedControls.forEach(control => control.classList.add('hidden'));
+                const attributesToShow = [];
+                const tagName = el.tagName.toLowerCase();
+                switch(tagName) {
+                    case 'circle': attributesToShow.push('cx', 'cy', 'r'); break;
+                    case 'rect': attributesToShow.push('x', 'y', 'width', 'height', 'rx', 'ry'); break;
+                    case 'ellipse': attributesToShow.push('cx', 'cy', 'rx', 'ry'); break;
+                    case 'line': attributesToShow.push('x1', 'y1', 'x2', 'y2'); break;
+                    case 'path': attributesToShow.push('d'); break;
+                    case 'text': attributesToShow.push('x', 'y'); break;
+                }
+                attributesToShow.forEach(attr => {
+                    const controlDiv = document.getElementById(`control-${attr}`);
+                    const inputEl = document.getElementById(`attr-${attr}`);
+                    if (controlDiv && inputEl) {
+                        inputEl.value = el.getAttribute(attr) || '';
+                        controlDiv.classList.remove('hidden');
+                    }
+                });
+            }
+
             function setupPaintControls(prop, el) {
                 const paintValue = el.getAttribute(prop) || window.getComputedStyle(el)[prop];
-                const isGradient = paintValue.startsWith('url(');
+                const isGradient = paintValue && paintValue.startsWith('url(');
                 const solidControls = document.getElementById(`${prop}-solid-controls`);
                 const gradientControls = document.getElementById(`${prop}-gradient-controls`);
                 const solidColorInput = document.getElementById(`${prop}-color`);
@@ -594,11 +706,11 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                     solidControls.classList.add('hidden');
                     gradientControls.classList.remove('hidden');
                     updateButtonGroupState(null, `.${prop}-mode-btn`, 'gradient');
-                    const gradientId = paintValue.match(/url\(#([^)]+)\)/)[1];
-                    const gradientElement = getSvgRoot().querySelector(`#${gradientId}`);
-                    if (gradientElement) {
-                        populateGradientEditor(prop, gradientElement);
-                    }
+                    try {
+                        const gradientId = paintValue.match(/url\(#([^)]+)\)/)[1];
+                        const gradientElement = getSvgRoot().querySelector(`#${gradientId}`);
+                        if (gradientElement) populateGradientEditor(prop, gradientElement);
+                    } catch(e) { /* ignore malformed url */ }
                 } else {
                     solidControls.classList.remove('hidden');
                     gradientControls.classList.add('hidden');
@@ -611,7 +723,7 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                 const stops = Array.from(gradientEl.querySelectorAll('stop'));
                 bar.innerHTML = '';
                 stops.forEach((stop, index) => {
-                    const offset = parseFloat(stop.getAttribute('offset').replace('%', ''));
+                    const offset = parseFloat((stop.getAttribute('offset') || '0').replace('%', ''));
                     const color = stop.style.stopColor;
                     const stopPin = document.createElement('div');
                     stopPin.className = 'gradient-stop';
@@ -623,11 +735,11 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                 updateGradientBarBackground(prop, gradientEl);
                 if (gradientEl.tagName === 'linearGradient') {
                     const rotationControl = document.getElementById(`${prop}-gradient-rotation`);
-                    const x1 = parseFloat(gradientEl.getAttribute('x1') || 0);
-                    const y1 = parseFloat(gradientEl.getAttribute('y1') || 0);
-                    const x2 = parseFloat(gradientEl.getAttribute('x2') || 1);
-                    const y2 = parseFloat(gradientEl.getAttribute('y2') || 0);
-                    const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+                    const x1 = parseFloat((gradientEl.getAttribute('x1') || '0').replace('%', '')) / 100;
+                    const y1 = parseFloat((gradientEl.getAttribute('y1') || '0').replace('%', '')) / 100;
+                    const x2 = parseFloat((gradientEl.getAttribute('x2') || '100').replace('%', '')) / 100;
+                    const y2 = parseFloat((gradientEl.getAttribute('y2') || '0').replace('%', '')) / 100;
+                    const angle = (Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI) + 360) % 360;
                     rotationControl.value = angle;
                 }
             }
@@ -709,21 +821,15 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
             }
             function updateButtonGroupState(groupElement, selector, value) {
                 const buttons = groupElement ? groupElement.querySelectorAll(selector) : document.querySelectorAll(selector);
-                buttons.forEach(btn => {
-                    if (btn.dataset.value === value) btn.classList.add('active');
-                    else btn.classList.remove('active');
-                });
+                buttons.forEach(btn => btn.classList.toggle('active', btn.dataset.value === value));
             }
             function rgbToHex(rgb) {
-                if (!rgb || rgb.startsWith('#')) return rgb || '#000000';
-                if (rgb === 'none') return '#000000';
+                if (!rgb || rgb.startsWith('#') || rgb === 'none') return rgb === 'none' ? '#000000' : (rgb || '#000000');
                 let match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-                if (match) {
-                    return "#" + ((1 << 24) + (+match[1] << 16) + (+match[2] << 8) + +match[3]).toString(16).slice(1).toUpperCase();
-                }
-                return rgb;
+                return match ? "#" + ((1 << 24) + (+match[1] << 16) + (+match[2] << 8) + +match[3]).toString(16).slice(1).toUpperCase() : rgb;
             }
             function formatSvg(svgString) {
+                // This is a basic formatter. A more advanced one could be used.
                 return svgString.replace(/></g, '>\n  <').replace(/<(svg|defs|linearGradient|g|path|rect|circle|line|polygon|polyline|text|stop)/g, '\n<$1').replace(/<\/svg>/g, '\n</svg>').trim();
             }
             function showControls() {
@@ -746,6 +852,7 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                 reader.onload = (e) => {
                     svgInput.value = e.target.result;
                     renderSvg();
+                    switchTab('layers');
                 };
                 reader.readAsText(file);
                 importFileInput.value = '';
@@ -763,16 +870,11 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
             });
-            strokeWidthInput.addEventListener('input', (e) => {
-                const value = e.target.value;
-                strokeWidthValue.textContent = `${value}px`;
-                updateSelectedElement('stroke-width', value);
-            });
-            opacityInput.addEventListener('input', (e) => {
-                const value = e.target.value;
-                opacityValue.textContent = `${Math.round(value * 100)}%`;
-                updateSelectedElement('opacity', value);
-            });
+            strokeWidthInput.addEventListener('input', (e) => updateSelectedElement('stroke-width', e.target.value));
+            strokeWidthInput.addEventListener('change', (e) => strokeWidthValue.textContent = `${e.target.value}px`); // Less janky
+            opacityInput.addEventListener('input', (e) => updateSelectedElement('opacity', e.target.value));
+            opacityInput.addEventListener('change', (e) => opacityValue.textContent = `${Math.round(e.target.value * 100)}%`);
+            
             strokeLinecapGroup.addEventListener('click', (e) => {
                 if (e.target.matches('.linecap-btn')) {
                     const value = e.target.dataset.value;
@@ -851,14 +953,12 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                 rotationInput.addEventListener('input', e => {
                     const angle = parseFloat(e.target.value);
                     const rad = angle * (Math.PI / 180);
-                    const x2 = Math.cos(rad);
-                    const y2 = Math.sin(rad);
                     const gradientEl = getCurrentGradientElement(prop);
-                    if (gradientEl.tagName === 'linearGradient') {
-                        gradientEl.setAttribute('x1', '0%');
-                        gradientEl.setAttribute('y1', '0%');
-                        gradientEl.setAttribute('x2', `${(x2 + 1) * 50}%`);
-                        gradientEl.setAttribute('y2', `${(y2 + 1) * 50}%`);
+                    if (gradientEl && gradientEl.tagName === 'linearGradient') {
+                         gradientEl.setAttribute('x1', `${(Math.cos(rad + Math.PI) + 1) * 50}%`);
+                         gradientEl.setAttribute('y1', `${(Math.sin(rad + Math.PI) + 1) * 50}%`);
+                         gradientEl.setAttribute('x2', `${(Math.cos(rad) + 1) * 50}%`);
+                         gradientEl.setAttribute('y2', `${(Math.sin(rad) + 1) * 50}%`);
                         updateOutput();
                     }
                 });
@@ -873,18 +973,17 @@ background: linear-gradient(to bottom right, #23CFD8 0%, #741FDA 100%);
                     copyButton.textContent = 'Error!';
                 }
             });
-            
-            // Add event listeners for advanced controls
-            for (const attr in advancedControls) {
-                advancedControls[attr].input.addEventListener('input', (e) => {
-                    updateSelectedElement(attr, e.target.value);
+            allAdvancedInputs.forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const attribute = e.target.id.replace('attr-', '');
+                    updateSelectedElement(attribute, e.target.value);
                 });
-            }
-
-            // Initial render
+            });
             renderSvg();
+            switchTab('layers'); // Start on layers tab
         });
     </script>
 </body>
 </html>
+
 
