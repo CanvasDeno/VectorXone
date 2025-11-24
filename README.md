@@ -36,6 +36,23 @@ Now you have known what is VectorXone, you can start learning how to use VectorX
 3. Select the part of the SVG element you want to edit
 4. You can start tweaking the SVG with the avaliable tweaking options.
 
+## Found a bug on the app or website?
+VectorXone is an awesome tool, but it is actively being developed and you could find some bugs or problems related the **app or website.** 
+
+If you find bugs, try **reloading the page** or **updating your browser**. If that  **don't just live with them, you can report them**
+
+To do this follow these **steps:**
+1. Go to the issues section and create a [new issue](https://github.com/CanvasDeno/VectorXone/issues/new)
+2. Add a **simple title to describe the bug**, like "SVG code keeps being reset"
+3. Add a label:
+   
+   **For editor related bugs** add label "bug"
+   
+   **For website related bugs** add label "readme or website"
+
+4. Describe the issue with a screenshot on the description. Try to **explain much as you can and also how to replicate the bug.**
+5. It is best also provide your browser and browser version.
+
 ## How to fork or customize?
 Users are **free to fork this project and customize it.**
 User can use this command on their native/remote git client:
